@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="6"
+            android:text="Enter the frequency (Hz) : "
+            android:textSize="18dp"
+            android:gravity="center_vertical"/>
+
+        <EditText
+            android:id="@+id/editText_send_frequency"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:layout_marginLeft="10dp"
+            android:textSize="18dp"
+            android:text="400" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/button_send_tone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Send Tone"
+        android:textSize="20dp"/>
+
+    <Button
+        android:id="@+id/button_stop_send"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Send"
+        android:textSize="20dp"/>
+
+    <Button
+        android:id="@+id/button_listen_tone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Listen Tone"
+        android:textSize="20dp"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/textview_listen_tone_freqency"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:textSize="30dp"
+        android:gravity="center"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000" />
+
+    <com.jjoe64.graphview.GraphView
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:id="@+id/graph" />
+</LinearLayout>
