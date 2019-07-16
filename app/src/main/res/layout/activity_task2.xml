@@ -4,6 +4,41 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:text="Please Click One Button"
+        android:textSize="20dp"
+        android:gravity="center"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+
+        <Button
+            android:id="@+id/button_task2_reset"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:layout_marginLeft="60dp"
+            android:layout_marginRight="30dp"
+            android:text="Reset"
+            android:textSize="20dp"/>
+
+        <Switch
+            android:id="@+id/switch_turn_high"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+            android:layout_gravity="right"
+            android:text="Use High Freq"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -100,6 +135,30 @@
             android:textSize="18dp"/>
     </LinearLayout>
 
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_marginLeft="60dp"-->
+        <!--android:layout_marginRight="60dp">-->
+        <!---->
+        <!--<Button-->
+            <!--android:id="@+id/button_number_lowfreq"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="5"-->
+            <!--android:text="Low Freq"-->
+            <!--android:textSize="18dp"/>-->
+        <!---->
+        <!--<Button-->
+            <!--android:id="@+id/button_number_highfreq"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="5"-->
+            <!--android:text="High Freq"-->
+            <!--android:textSize="18dp"/>-->
+    <!--</LinearLayout>-->
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
@@ -113,10 +172,30 @@
         android:layout_marginRight="60dp"
         android:textSize="20dp"
         android:gravity="center"
-        android:text="testing" />
+        android:text="The number you choose is: ?" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#000" />
+
+    <Button
+        android:id="@+id/button_task2_receive"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:text="Ready to Receive"
+        android:textSize="20dp"/>
+
+    <TextView
+        android:id="@+id/textview_task2_receive_result"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:gravity="center"
+        android:text="The number received is: ?"
+        android:textSize="20dp" />
 </LinearLayout>
