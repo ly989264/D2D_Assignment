@@ -36,6 +36,8 @@ public class Task1 extends AppCompatActivity {
     private Button button_listen_tone;
     private TextView textView_listen_tone;
     private GraphView graphView;
+    private Button button_show_spectrum_graph;
+    private Button button_show_detail_graph;
 
     // tone sender
     private Tone_sender tone_sender = null;
@@ -45,7 +47,13 @@ public class Task1 extends AppCompatActivity {
     private Thread recordingThread = null;
     private AudioRecord recorder = null;
     private boolean isRecording = false;
+    private boolean isAnalyzing = false;
+    private boolean spectrum_done = false;
+    private boolean detail_done = false;
+    private int temp_freq_value;
     private int recordBufSize;
+    private DataPoint[] dataPoints_detail;
+    private DataPoint[] dataPoints_spectrum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +70,7 @@ public class Task1 extends AppCompatActivity {
                 try {
                     double freq = Double.parseDouble(editText_send_frequency.getText().toString());
                     frequency = freq;
-                    tone_sender = new Tone_sender(30, 44100, frequency);
+                    tone_sender = new Tone_sender(3, 44100, frequency);
                     tone_sender.generate_tone();
                     tone_sender.play_sound();
                 } catch (Exception e) {
@@ -84,10 +92,30 @@ public class Task1 extends AppCompatActivity {
         button_listen_tone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startRecording();
+                if ((! isRecording) && (! isAnalyzing)) {
+                    startRecording();
+                    spectrum_done = false;
+                    detail_done = false;
+                } else {
+                    Toast.makeText(Task1.this, "Currently working...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         graphView = (GraphView) findViewById(R.id.graph);
+        button_show_spectrum_graph = (Button) findViewById(R.id.button_show_spectrum_graph);
+        button_show_detail_graph = (Button) findViewById(R.id.button_show_detail_graph);
+        button_show_spectrum_graph.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                draw_spectrum_graph();
+            }
+        });
+        button_show_detail_graph.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                draw_detail_graph();
+            }
+        });
     }
 
     void startRecording() {
@@ -126,11 +154,48 @@ public class Task1 extends AppCompatActivity {
         return builder.toString();
     }
 
+    private void draw_spectrum_graph() {
+        if (spectrum_done) {
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints_spectrum);
+            graphView.removeAllSeries();
+            graphView.addSeries(series);
+
+            graphView.getViewport().setMinX(100);
+            graphView.getViewport().setMaxX(22000);
+            graphView.getViewport().setScalable(true);
+            graphView.getViewport().setScalableY(false);
+            graphView.getViewport().setScrollableY(false);
+//            graphView.getGridLabelRenderer().setLabelHorizontalHeight(10);
+            graphView.getGridLabelRenderer().setHorizontalLabelsAngle(120);
+            graphView.getGridLabelRenderer().setVerticalLabelsVisible(false);
+            graphView.getViewport().setXAxisBoundsManual(true);
+//            graphView.getViewport().setYAxisBoundsManual(true);
+        }
+    }
+
+    private void draw_detail_graph() {
+        if (detail_done) {
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints_detail);
+            graphView.removeAllSeries();
+            graphView.addSeries(series);
+
+            graphView.getViewport().setMinX(temp_freq_value-150);
+            graphView.getViewport().setMaxX(temp_freq_value+150);
+            graphView.getViewport().setScalable(true);
+            graphView.getViewport().setScalableY(false);
+            graphView.getGridLabelRenderer().setHorizontalLabelsAngle(120);
+            graphView.getGridLabelRenderer().setVerticalLabelsVisible(false);
+            graphView.getViewport().setXAxisBoundsManual(true);
+//            graphView.getViewport().setYAxisBoundsManual(true);
+        }
+    }
+
     private void writeAudioDataToFile() {
         // I want to record 20 sData arrays
         short sDatas[][] = new short[recordBufSize][20];
         int arr_cnt = 0;
         short sData[] = new short[recordBufSize];
+        isAnalyzing = true;
 
         while (isRecording) {
             // gets the voice output from microphone
@@ -152,15 +217,17 @@ public class Task1 extends AppCompatActivity {
         }
         Log.d("LISTENINGRESULT", "Done");
         textView_listen_tone.setText("Analyzing...");
-        // first I want to scan for all spectrum in range (100, 20000) with step of 70 (because the recognition range is 80Hz)
+        // first I want to scan for all spectrum in range (100, 22000) with step of 70 (because the recognition range is 80Hz)
         sData = sDatas[10];  // analyze the medium one only
+        dataPoints_spectrum = new DataPoint[313];
         int freq_l = 100;
-        int freq_u = 20000;
+        int freq_u = 22000;
         int step = 70;
         int cnt = 0;
         long result_value = 0;
         long temp_biggest = 0;
         int temp_freq = 0;
+        int current_index = 0;
         // temp, write to file
         FileOutputStream out = null;
         BufferedWriter writer = null;
@@ -178,6 +245,10 @@ public class Task1 extends AppCompatActivity {
                     writer.write(v);
                     writer.write(" ");
                     writer.close();
+                    if (current_index < 313) {
+                        dataPoints_spectrum[current_index] = new DataPoint(freq_l, result_value);
+                    }
+                    current_index++;
                 } catch (Exception e) {
                     ;
                 }
@@ -195,6 +266,7 @@ public class Task1 extends AppCompatActivity {
 
             result_value+=Long.parseLong(result);
         }
+        spectrum_done = true;
 
         // then, need to reduce the step to 2Hz and analyze the specturm in range of (temp_freq-150, temp_frep+150)
         freq_l = temp_freq-150;
@@ -202,8 +274,8 @@ public class Task1 extends AppCompatActivity {
         step = 2;
         cnt = 0;
         result_value = 0;
-        DataPoint[] dataPoints = new DataPoint[150];
-        int current_index = 0;
+        dataPoints_detail = new DataPoint[150];
+        current_index = 0;
         // temp, write to file
         out = null;
         writer = null;
@@ -222,7 +294,7 @@ public class Task1 extends AppCompatActivity {
                     writer.write(" ");
                     writer.close();
                     if (current_index < 150) {
-                        dataPoints[current_index] = new DataPoint(freq_l, result_value);
+                        dataPoints_detail[current_index] = new DataPoint(freq_l, result_value);
                     }
                     current_index++;
                 } catch (Exception e) {
@@ -237,15 +309,10 @@ public class Task1 extends AppCompatActivity {
             Log.d("TESTINGRECORDING", result);
             result_value+=Long.parseLong(result);
         }
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(dataPoints);
-        graphView.removeAllSeries();
-        graphView.addSeries(series);
-
-        graphView.getViewport().setMinX(temp_freq-150);
-        graphView.getViewport().setMaxX(temp_freq+150);
-        graphView.getViewport().setScalable(true);
-        graphView.getViewport().setXAxisBoundsManual(true);
-        textView_listen_tone.setText(""+temp_freq);
+        textView_listen_tone.setText("Done");
+        isAnalyzing = false;
+        detail_done = true;
+        temp_freq_value = temp_freq;
 //        textView_listen_tone.setText(""+(dataPoints[149].getX()));
 
     }

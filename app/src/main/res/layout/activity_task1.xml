@@ -28,19 +28,33 @@
     </LinearLayout>
 
 
-    <Button
-        android:id="@+id/button_send_tone"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Send Tone"
-        android:textSize="20dp"/>
+        android:layout_height="wrap_content">
 
-    <Button
-        android:id="@+id/button_stop_send"
+        <Button
+            android:id="@+id/button_send_tone"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:text="Send Tone"
+            android:textSize="20dp"/>
+
+        <Button
+            android:id="@+id/button_stop_send"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:text="Stop Send"
+            android:textSize="20dp"/>
+    </LinearLayout>
+
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Stop Send"
-        android:textSize="20dp"/>
+        android:layout_height="1dp"
+        android:background="#000" />
+
 
     <Button
         android:id="@+id/button_listen_tone"
@@ -62,8 +76,30 @@
         android:layout_height="1dp"
         android:background="#000" />
 
-    <com.jjoe64.graphview.GraphView
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="200dip"
-        android:id="@+id/graph" />
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/button_show_spectrum_graph"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:text="Show Spectrum Graph"/>
+
+        <Button
+            android:id="@+id/button_show_detail_graph"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:text="Show Detail Graph"/>
+    </LinearLayout>
+
+
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/graph"
+        android:layout_width="match_parent"
+        android:layout_height="200dip" />
 </LinearLayout>

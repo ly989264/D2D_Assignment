@@ -36,7 +36,7 @@ public class Tone_sender {
             // because 16 bit in range of -32767 to +32767, need to multiple 32767
             short val = (short) (dVal * 32767);
             generated_snd[idx++] = (byte) (val & 0x00ff);
-            generated_snd[idx++] = (byte) ((val & 0x00ff) >>> 8);
+            generated_snd[idx++] = (byte) ((val & 0xff00) >>> 8);
         }
     }
 
