@@ -1,6 +1,7 @@
 package com.example.d2d;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -38,9 +39,9 @@ public class Task2 extends AppCompatActivity {
 
     private double[] low_freqs = new double[9];
     private double[] high_freqs = new double[9];
-    private double low_freq_l = 3000;
+    private double low_freq_l = 8000;
     private double low_freq_step = 500;
-    private double high_freq_l = 19560;
+    private double high_freq_l = 18560;
     private double high_freq_step = 180;
 
     // tone sender
@@ -76,10 +77,12 @@ public class Task2 extends AppCompatActivity {
         textView_number_input = (TextView) findViewById(R.id.textview_number_input);
         textView_number_received = (TextView) findViewById(R.id.textview_task2_receive_result);
         button_ready_receive = (Button) findViewById(R.id.button_task2_receive);
+        button_reset.setBackgroundColor(Color.GRAY);
         button_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 is_sending = false;
+                button_reset.setBackgroundColor(Color.GRAY);
             }
         });
         button_number_1.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +142,11 @@ public class Task2 extends AppCompatActivity {
         button_ready_receive.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startRecording();
+                if (! isAnalyzing) {
+                    startRecording();
+                } else {
+                    Toast.makeText(Task2.this, "Oops, it is currently working...", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -148,6 +155,7 @@ public class Task2 extends AppCompatActivity {
         if (is_sending) {
             return;
         }
+        button_reset.setBackgroundColor(Color.RED);
         boolean is_low_freq;
         if (switch_use_high_feq.isChecked()) {
             is_low_freq = false;
@@ -168,6 +176,7 @@ public class Task2 extends AppCompatActivity {
             Toast.makeText(Task2.this, "Something wrong while sending tone", Toast.LENGTH_SHORT).show();
         }
         textView_number_input.setText("The number you choose is: "+target_number);
+        Toast.makeText(Task2.this, "Sending...", Toast.LENGTH_SHORT).show();
         is_sending = true;
     }
 
@@ -178,6 +187,7 @@ public class Task2 extends AppCompatActivity {
                 recordBufSize);
         recorder.startRecording();
         isRecording = true;
+        isAnalyzing = true;
         recordingThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -220,12 +230,14 @@ public class Task2 extends AppCompatActivity {
         int count = 0;
         long current_max = 0;
         int current_pos = 0;
+        boolean is_low_pos = true;
         for (double freq: low_freqs) {
             Parse_freq parser = new Parse_freq(44100, freq, 552, recordBufSize, sData);
             result_arr[count] = Long.parseLong(parser.analyse());
             if (result_arr[count] > current_max) {
                 current_max = result_arr[count];
                 current_pos = count+1;
+                is_low_pos = true;
             }
             count++;
         }
@@ -235,13 +247,15 @@ public class Task2 extends AppCompatActivity {
             if (result_arr[count] > current_max) {
                 current_max = result_arr[count];
                 current_pos = count-9+1;
+                is_low_pos = false;
             }
             count++;
         }
 
 
         // find the maximum value of result_arr, which is the corresponding signal
-        textView_number_received.setText("The number received is: "+current_pos);
+        textView_number_received.setText("The number received is: "+current_pos+(is_low_pos?"(low freq)":"(high freq)"));
+        isAnalyzing = false;
 
         // this is used to store the data to a file, for analysis
 //        FileOutputStream out = null;
