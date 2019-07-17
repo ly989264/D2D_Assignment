@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.media.ToneGenerator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,13 +15,13 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.series.DataPoint;
+import org.w3c.dom.Text;
 
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
-public class Task2 extends AppCompatActivity {
+public class Task3 extends AppCompatActivity {
 
     private Button button_reset;
     private Button button_number_1;
@@ -32,56 +33,61 @@ public class Task2 extends AppCompatActivity {
     private Button button_number_7;
     private Button button_number_8;
     private Button button_number_9;
-    private Switch switch_use_high_feq;
+    private Switch switch_inaudible;
     private TextView textView_number_input;
     private TextView textView_number_received;
     private Button button_ready_receive;
 
-    private double[] low_freqs = new double[9];
-    private double[] high_freqs = new double[9];
-    private double low_freq_l = 8000;
-    private double low_freq_step = 500;
-    private double high_freq_l = 18560;
-    private double high_freq_step = 180;
+    private double[] low_freqs = new double[3];
+    private double[] high_freqs = new double[3];
+    private double[] low_freqs_ina = new double[3];
+    private double[] high_freqs_ina = new double[3];
+    private boolean isInaudible = false;
+    private boolean isSending = false;
 
-    // tone sender
-    private Tone_sender tone_sender;
-    private boolean is_sending = false;
+    private Multi_Tone_Sender multi_tone_sender = new Multi_Tone_Sender(2, 44100);
 
-    // tone receiver
     private Thread recordingThread = null;
     private AudioRecord recorder = null;
     private boolean isRecording = false;
     private boolean isAnalyzing = false;
     private int recordBufSize;
+    private long[] result_arr = new long[12];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task2);
-        for (int index = 0; index < 9; index++) {
-            low_freqs[index] = low_freq_l + index * low_freq_step;
-            high_freqs[index] = high_freq_l + index * high_freq_step;
-        }
-        button_reset = (Button) findViewById(R.id.button_task2_reset);
-        button_number_1 = (Button) findViewById(R.id.button_number_1);
-        button_number_2 = (Button) findViewById(R.id.button_number_2);
-        button_number_3 = (Button) findViewById(R.id.button_number_3);
-        button_number_4 = (Button) findViewById(R.id.button_number_4);
-        button_number_5 = (Button) findViewById(R.id.button_number_5);
-        button_number_6 = (Button) findViewById(R.id.button_number_6);
-        button_number_7 = (Button) findViewById(R.id.button_number_7);
-        button_number_8 = (Button) findViewById(R.id.button_number_8);
-        button_number_9 = (Button) findViewById(R.id.button_number_9);
-        switch_use_high_feq = (Switch) findViewById(R.id.switch_turn_high);
-        textView_number_input = (TextView) findViewById(R.id.textview_number_input);
-        textView_number_received = (TextView) findViewById(R.id.textview_task2_receive_result);
-        button_ready_receive = (Button) findViewById(R.id.button_task2_receive);
-        button_reset.setBackgroundColor(Color.GRAY);
+        setContentView(R.layout.activity_task3);
+        low_freqs[0] = 697;
+        low_freqs[1] = 770;
+        low_freqs[2] = 852;
+        high_freqs[0] = 1209;
+        high_freqs[1] = 1336;
+        high_freqs[2] = 1477;
+        low_freqs_ina[0] = 18560;
+        low_freqs_ina[1] = 18740;
+        low_freqs_ina[2] = 18920;
+        high_freqs_ina[0] = 19280;
+        high_freqs_ina[1] = 19460;
+        high_freqs_ina[2] = 19640;
+        button_reset = (Button) findViewById(R.id.button_task3_reset);
+        button_number_1 = (Button) findViewById(R.id.button_task3_number_1);
+        button_number_2 = (Button) findViewById(R.id.button_task3_number_2);
+        button_number_3 = (Button) findViewById(R.id.button_task3_number_3);
+        button_number_4 = (Button) findViewById(R.id.button_task3_number_4);
+        button_number_5 = (Button) findViewById(R.id.button_task3_number_5);
+        button_number_6 = (Button) findViewById(R.id.button_task3_number_6);
+        button_number_7 = (Button) findViewById(R.id.button_task3_number_7);
+        button_number_8 = (Button) findViewById(R.id.button_task3_number_8);
+        button_number_9 = (Button) findViewById(R.id.button_task3_number_9);
+        button_ready_receive = (Button) findViewById(R.id.button_task3_receive);
+        switch_inaudible = (Switch) findViewById(R.id.switch_task3_turn_high);
+        textView_number_input = (TextView) findViewById(R.id.textview_task3_number_input);
+        textView_number_received = (TextView) findViewById(R.id.textview_task3_receive_result);
         button_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                is_sending = false;
+                isSending = false;
                 button_reset.setBackgroundColor(Color.GRAY);
             }
         });
@@ -91,12 +97,14 @@ public class Task2 extends AppCompatActivity {
                 send_number(1);
             }
         });
+
         button_number_2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 send_number(2);
             }
         });
+
         button_number_3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -145,39 +153,35 @@ public class Task2 extends AppCompatActivity {
                 if (! isAnalyzing) {
                     startRecording();
                 } else {
-                    Toast.makeText(Task2.this, "Oops, it is currently working...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Task3.this, "Oops, it is currently working...", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
     private void send_number(int target_number) {
-        if (is_sending) {
+        if (isSending) {
             return;
         }
+        if (multi_tone_sender != null) {
+            multi_tone_sender.stop_play();
+        }
         button_reset.setBackgroundColor(Color.RED);
-        boolean is_low_freq;
-        if (switch_use_high_feq.isChecked()) {
-            is_low_freq = false;
+        isSending = true;
+        Toast.makeText(Task3.this, "Sending...", Toast.LENGTH_SHORT).show();
+        if (switch_inaudible.isChecked()) {
+            isInaudible = true;
         } else {
-            is_low_freq = true;
+            isInaudible = false;
         }
-        double current_freq;
-        if (is_low_freq) {
-            current_freq = low_freqs[target_number-1];
+        if (isInaudible) {
+            multi_tone_sender.set_frequency(high_freqs_ina[(target_number-1)%3], low_freqs_ina[(target_number-1)/3]);
+            multi_tone_sender.play_sound();
         } else {
-            current_freq = high_freqs[target_number-1];
-        }
-        try {
-            tone_sender = new Tone_sender(3, 44100, current_freq);
-            tone_sender.generate_tone();
-            tone_sender.play_sound();
-        } catch (Exception e) {
-            Toast.makeText(Task2.this, "Something wrong while sending tone", Toast.LENGTH_SHORT).show();
+            multi_tone_sender.set_frequency(high_freqs[(target_number-1)%3], low_freqs[(target_number-1)/3]);
+            multi_tone_sender.play_sound();
         }
         textView_number_input.setText("The number you choose is: "+target_number);
-        Toast.makeText(Task2.this, "Sending...", Toast.LENGTH_SHORT).show();
-        is_sending = true;
     }
 
     void startRecording() {
@@ -231,50 +235,115 @@ public class Task2 extends AppCompatActivity {
         long current_max = 0;
         int current_pos = 0;
         long previous_max = 0;
-        boolean is_low_pos = true;
-        for (double freq: low_freqs) {
-            Parse_freq parser = new Parse_freq(44100, freq, 552, recordBufSize, sData);
+        int previous_pos = 0;
+        for (double each : low_freqs) {
+            Parse_freq parser = new Parse_freq(44100, each, 1104, recordBufSize, sData);
             result_arr[count] = Long.parseLong(parser.analyse());
             if (result_arr[count] > current_max) {
                 previous_max = current_max;
+                previous_pos = current_pos;
                 current_max = result_arr[count];
-                current_pos = count+1;
-                is_low_pos = true;
+                current_pos = count;
             } else if (result_arr[count] > previous_max) {
                 previous_max = result_arr[count];
+                previous_pos = count;
             }
             count++;
         }
-        for (double freq: high_freqs) {
-            Parse_freq parser = new Parse_freq(44100, freq, 552, recordBufSize, sData);
+        for (double each : high_freqs) {
+            Parse_freq parser = new Parse_freq(44100, each, 1104, recordBufSize, sData);
             result_arr[count] = Long.parseLong(parser.analyse());
             if (result_arr[count] > current_max) {
                 previous_max = current_max;
+                previous_pos = current_pos;
                 current_max = result_arr[count];
-                current_pos = count-9+1;
-                is_low_pos = false;
+                current_pos = count;
             } else if (result_arr[count] > previous_max) {
                 previous_max = result_arr[count];
+                previous_pos = count;
             }
             count++;
         }
-
-
-        // find the maximum value of result_arr, which is the corresponding signal
-        if ((double)previous_max/(double)current_max > 0.3 && current_max < 20000000) {
-            textView_number_received.setText("Lower than threshold, try again?");
+        for (double each : low_freqs_ina) {
+            Parse_freq parser = new Parse_freq(44100, each, 1104, recordBufSize, sData);
+            result_arr[count] = Long.parseLong(parser.analyse());
+            if (result_arr[count] > current_max) {
+                previous_max = current_max;
+                previous_pos = current_pos;
+                current_max = result_arr[count];
+                current_pos = count;
+            } else if (result_arr[count] > previous_max) {
+                previous_max = result_arr[count];
+                previous_pos = count;
+            }
+            count++;
+        }
+        for (double each : high_freqs_ina) {
+            Parse_freq parser = new Parse_freq(44100, each, 1104, recordBufSize, sData);
+            result_arr[count] = Long.parseLong(parser.analyse());
+            if (result_arr[count] > current_max) {
+                previous_max = current_max;
+                previous_pos = current_pos;
+                current_max = result_arr[count];
+                current_pos = count;
+            } else if (result_arr[count] > previous_max) {
+                previous_max = result_arr[count];
+                previous_pos = count;
+            }
+            count++;
+        }
+        textView_number_received.setText(""+current_pos+" "+previous_pos);
+        int temp_c = current_pos;
+        int temp_p = previous_pos;
+        if (current_pos > 5) {
+            current_pos -= 6;
+        }
+        if (previous_pos > 5) {
+            previous_pos -= 6;
+        }
+        int larger = (current_pos>previous_pos)?current_pos:previous_pos;
+        int smaller = (current_pos<previous_pos)?current_pos:previous_pos;
+        if (larger > 5 || larger < 3 || smaller > 3) {
+            FileOutputStream out = null;
+            BufferedWriter writer = null;
+            try {
+                out = openFileOutput("data3.txt", Context.MODE_APPEND);
+                writer = new BufferedWriter(new OutputStreamWriter(out));
+                String temp_result = "";
+                for (long each : result_arr) {
+                    temp_result += each;
+                    temp_result += " ";
+                }
+                writer.write(temp_result);
+                writer.write("\n");
+                writer.close();
+            } catch (Exception e) {
+                ;
+            }
+            textView_number_received.setText("Try again");
+            isAnalyzing = false;
+            return;
+        }
+        int receiver_num = 0;
+        if (smaller == 0) {
+            receiver_num = larger + smaller - 2;
+        } else if (smaller == 1) {
+            receiver_num = larger + smaller;
         } else {
-            textView_number_received.setText("The number received is: "+current_pos+(is_low_pos?"(low freq)":"(high freq)"));
+            receiver_num = larger + smaller + 2;
         }
+        textView_number_received.setText("The number received is: "+receiver_num);
         isAnalyzing = false;
-//
-//         this is used to store the data to a file, for analysis
+
+        // collect some data for analysis
 //        FileOutputStream out = null;
 //        BufferedWriter writer = null;
 //        try {
-//            out = openFileOutput("data.txt", Context.MODE_APPEND);
+//            out = openFileOutput("data4.txt", Context.MODE_APPEND);
 //            writer = new BufferedWriter(new OutputStreamWriter(out));
 //            String temp_result = "";
+//            temp_result += receiver_num;
+//            temp_result += " ";
 //            for (long each : result_arr) {
 //                temp_result += each;
 //                temp_result += " ";
@@ -285,14 +354,6 @@ public class Task2 extends AppCompatActivity {
 //        } catch (Exception e) {
 //            ;
 //        }
-
-//        textView_number_received.setText("Done");
     }
 
 }
-
-
-// To be further improved:
-// cannot know whether there is signal transmitted (threshold needed)
-// from the analysis in Python, for the current parameters, use the percentage of the 2nd largest value and the largest value
-// and the value of 5000000 to be threshold

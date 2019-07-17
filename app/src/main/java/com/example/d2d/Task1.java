@@ -219,6 +219,12 @@ public class Task1 extends AppCompatActivity {
         textView_listen_tone.setText("Analyzing...");
         // first I want to scan for all spectrum in range (100, 22000) with step of 70 (because the recognition range is 80Hz)
         sData = sDatas[10];  // analyze the medium one only
+//        String s = "";
+//        for (short each : sData) {
+//            s += each;
+//            s += " ";
+//        }
+//        Log.d("SDATA", s);
         dataPoints_spectrum = new DataPoint[313];
         int freq_l = 100;
         int freq_u = 22000;
