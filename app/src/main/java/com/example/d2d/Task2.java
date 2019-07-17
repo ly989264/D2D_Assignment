@@ -230,14 +230,18 @@ public class Task2 extends AppCompatActivity {
         int count = 0;
         long current_max = 0;
         int current_pos = 0;
+        long previous_max = 0;
         boolean is_low_pos = true;
         for (double freq: low_freqs) {
             Parse_freq parser = new Parse_freq(44100, freq, 552, recordBufSize, sData);
             result_arr[count] = Long.parseLong(parser.analyse());
             if (result_arr[count] > current_max) {
+                previous_max = current_max;
                 current_max = result_arr[count];
                 current_pos = count+1;
                 is_low_pos = true;
+            } else if (result_arr[count] > previous_max) {
+                previous_max = result_arr[count];
             }
             count++;
         }
@@ -245,26 +249,33 @@ public class Task2 extends AppCompatActivity {
             Parse_freq parser = new Parse_freq(44100, freq, 552, recordBufSize, sData);
             result_arr[count] = Long.parseLong(parser.analyse());
             if (result_arr[count] > current_max) {
+                previous_max = current_max;
                 current_max = result_arr[count];
                 current_pos = count-9+1;
                 is_low_pos = false;
+            } else if (result_arr[count] > previous_max) {
+                previous_max = result_arr[count];
             }
             count++;
         }
 
 
         // find the maximum value of result_arr, which is the corresponding signal
-        textView_number_received.setText("The number received is: "+current_pos+(is_low_pos?"(low freq)":"(high freq)"));
+        if (previous_max/current_max > 0.9 && current_max < 5000000) {
+            textView_number_received.setText("Lower than threshold, try again?");
+        } else {
+            textView_number_received.setText("The number received is: "+current_pos+(is_low_pos?"(low freq)":"(high freq)"));
+        }
         isAnalyzing = false;
-
-        // this is used to store the data to a file, for analysis
+//
+//         this is used to store the data to a file, for analysis
 //        FileOutputStream out = null;
 //        BufferedWriter writer = null;
 //        try {
 //            out = openFileOutput("data.txt", Context.MODE_APPEND);
 //            writer = new BufferedWriter(new OutputStreamWriter(out));
 //            String temp_result = "";
-//            for (String each : result_arr) {
+//            for (long each : result_arr) {
 //                temp_result += each;
 //                temp_result += " ";
 //            }
@@ -274,7 +285,7 @@ public class Task2 extends AppCompatActivity {
 //        } catch (Exception e) {
 //            ;
 //        }
-//
+
 //        textView_number_received.setText("Done");
     }
 
@@ -283,3 +294,5 @@ public class Task2 extends AppCompatActivity {
 
 // To be further improved:
 // cannot know whether there is signal transmitted (threshold needed)
+// from the analysis in Python, for the current parameters, use the percentage of the 2nd largest value and the largest value
+// and the value of 5000000 to be threshold
