@@ -261,7 +261,7 @@ public class Task2 extends AppCompatActivity {
 
 
         // find the maximum value of result_arr, which is the corresponding signal
-        if (previous_max/current_max > 0.9 && current_max < 5000000) {
+        if ((double)previous_max/(double)current_max > 0.3 && current_max < 20000000) {
             textView_number_received.setText("Lower than threshold, try again?");
         } else {
             textView_number_received.setText("The number received is: "+current_pos+(is_low_pos?"(low freq)":"(high freq)"));
@@ -269,22 +269,22 @@ public class Task2 extends AppCompatActivity {
         isAnalyzing = false;
 //
 //         this is used to store the data to a file, for analysis
-//        FileOutputStream out = null;
-//        BufferedWriter writer = null;
-//        try {
-//            out = openFileOutput("data.txt", Context.MODE_APPEND);
-//            writer = new BufferedWriter(new OutputStreamWriter(out));
-//            String temp_result = "";
-//            for (long each : result_arr) {
-//                temp_result += each;
-//                temp_result += " ";
-//            }
-//            writer.write(temp_result);
-//            writer.write("\n");
-//            writer.close();
-//        } catch (Exception e) {
-//            ;
-//        }
+        FileOutputStream out = null;
+        BufferedWriter writer = null;
+        try {
+            out = openFileOutput("data.txt", Context.MODE_APPEND);
+            writer = new BufferedWriter(new OutputStreamWriter(out));
+            String temp_result = "";
+            for (long each : result_arr) {
+                temp_result += each;
+                temp_result += " ";
+            }
+            writer.write(temp_result);
+            writer.write("\n");
+            writer.close();
+        } catch (Exception e) {
+            ;
+        }
 
 //        textView_number_received.setText("Done");
     }
