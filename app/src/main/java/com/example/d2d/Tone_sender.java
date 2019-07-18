@@ -24,6 +24,7 @@ public class Tone_sender {
         this.frequency = frequency;
         this.generated_snd = new byte[2 * num_samples];
     }
+    
 
     public void generate_tone() {
         // generate the sin values in range [-1, 1]

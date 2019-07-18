@@ -206,7 +206,7 @@ public class Task3 extends AppCompatActivity {
         short sDatas[][] = new short[recordBufSize][20];
         int arr_cnt = 0;
         short sData[] = new short[recordBufSize];
-        long result_arr[] = new long[18];
+        long result_arr[] = new long[12];
         isAnalyzing = true;
 
         while (isRecording) {
@@ -342,8 +342,6 @@ public class Task3 extends AppCompatActivity {
 //            out = openFileOutput("data4.txt", Context.MODE_APPEND);
 //            writer = new BufferedWriter(new OutputStreamWriter(out));
 //            String temp_result = "";
-//            temp_result += receiver_num;
-//            temp_result += " ";
 //            for (long each : result_arr) {
 //                temp_result += each;
 //                temp_result += " ";
@@ -357,3 +355,5 @@ public class Task3 extends AppCompatActivity {
     }
 
 }
+
+// should add the threshold to check the existence of the signal transmitted
