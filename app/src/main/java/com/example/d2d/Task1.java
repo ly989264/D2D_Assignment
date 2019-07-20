@@ -2,6 +2,7 @@ package com.example.d2d;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -202,7 +203,13 @@ public class Task1 extends AppCompatActivity {
 
 
             recorder.read(sData, 0, recordBufSize);
-            textView_listen_tone.setText("Recording...");
+//            textView_listen_tone.setText("Recording...");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textView_listen_tone.setText("Recording...");
+                }
+            });
 
 
             sDatas[arr_cnt] = sData;
@@ -216,7 +223,13 @@ public class Task1 extends AppCompatActivity {
             }
         }
         Log.d("LISTENINGRESULT", "Done");
-        textView_listen_tone.setText("Analyzing...");
+//        textView_listen_tone.setText("Analyzing...");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView_listen_tone.setText("Analyzing...");
+            }
+        });
         // first I want to scan for all spectrum in range (100, 22000) with step of 70 (because the recognition range is 80Hz)
         sData = sDatas[10];  // analyze the medium one only
 //        String s = "";
@@ -315,7 +328,13 @@ public class Task1 extends AppCompatActivity {
             Log.d("TESTINGRECORDING", result);
             result_value+=Long.parseLong(result);
         }
-        textView_listen_tone.setText("Done");
+//        textView_listen_tone.setText("Done");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView_listen_tone.setText("Done");
+            }
+        });
         isAnalyzing = false;
         detail_done = true;
         temp_freq_value = temp_freq;

@@ -27,6 +27,10 @@ public class Parse_freq {
         this.shorts = shorts;
     }
 
+    public void set_params (double target_freq){
+        this.target_freq = target_freq;
+    }
+
     private void resetGoertzel() {
         this.q1 = 0;
         this.q2 = 0;
