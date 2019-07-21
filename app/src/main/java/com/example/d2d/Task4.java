@@ -1,6 +1,7 @@
 package com.example.d2d;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -35,6 +36,9 @@ public class Task4 extends AppCompatActivity {
     private AudioRecord recorder;
     private boolean isRecording;
     private Thread recordingThread;
+    private double duration_fromAlert;
+    private int container_size_fromAlert;
+    private int sleep_time_fromAlert;
 
     private long threshold;
 
@@ -80,6 +84,27 @@ public class Task4 extends AppCompatActivity {
                 stopReceive();
             }
         });
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Task4.this);
+        alertBuilder.setCancelable(false);
+        alertBuilder.setTitle("Choose Data Transfer Parameter");
+        alertBuilder.setMessage("Which data transfer duration for each bit you want to use?");
+        alertBuilder.setPositiveButton("0.3s", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                duration_fromAlert = 0.3;
+                container_size_fromAlert = 4410;
+                sleep_time_fromAlert = 360;
+            }
+        });
+        alertBuilder.setNegativeButton("0.15s", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                duration_fromAlert = 0.15;
+                container_size_fromAlert = 2205;
+                sleep_time_fromAlert = 200;
+            }
+        });
+        alertBuilder.show();
     }
 
 
@@ -137,7 +162,7 @@ public class Task4 extends AppCompatActivity {
         Thread send_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Certain_Time_Tone_Sender sender = new Certain_Time_Tone_Sender(message_copy, Task4.this);
+                Certain_Time_Tone_Sender sender = new Certain_Time_Tone_Sender(duration_fromAlert, message_copy, Task4.this);
                 sender.play_sound();
             }
         });
@@ -145,7 +170,7 @@ public class Task4 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = message_copy.length() * 8 * 355 + 20 * 355;
+                int time_to_sleep = message_copy.length() * 8 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -222,7 +247,7 @@ public class Task4 extends AppCompatActivity {
 
     private void writeAudioDataToFile() {
         intermediate_data.clear();
-        final short sData[] = new short[4410];
+        final short sData[] = new short[container_size_fromAlert];
         isRecording = true;
         runOnUiThread(new Runnable() {
             @Override
@@ -231,8 +256,8 @@ public class Task4 extends AppCompatActivity {
             }
         });
         while (isRecording) {
-            recorder.read(sData, 0, 4410);
-            my_shorts current_shorts = new my_shorts(4410, sData, Task4.this);
+            recorder.read(sData, 0, container_size_fromAlert);
+            my_shorts current_shorts = new my_shorts(container_size_fromAlert, sData, Task4.this);
             new asyncOperate().execute(current_shorts);
 
         }
@@ -352,7 +377,7 @@ public class Task4 extends AppCompatActivity {
 
         @Override
         protected my_longs doInBackground(my_shorts... my_shorts) {
-            Parse_freq parser = new Parse_freq(44100, 19000, 552, 4410, my_shorts[0].shorts);
+            Parse_freq parser = new Parse_freq(44100, 19000, 552, container_size_fromAlert, my_shorts[0].shorts);
             long result_clearh = Long.parseLong(parser.analyse());
             parser.set_params(18500);
             long result_clearl = Long.parseLong(parser.analyse());

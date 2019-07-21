@@ -10,7 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Certain_Time_Tone_Sender {
 
-    private double duration = 0.2;
+    private double duration;
+    private int sleep_time;
     private int sample_rate = 44100;
     private String message;
     private double[] sample;
@@ -42,8 +43,10 @@ public class Certain_Time_Tone_Sender {
     private boolean isDataTransferring = false;
     private boolean isFirstRound = false;
 
-    public Certain_Time_Tone_Sender(final String message, Context context) {
-        this.each_length = (int) (duration * sample_rate);
+    public Certain_Time_Tone_Sender(double duration, final String message, Context context) {
+        this.duration = duration * 2 / 3;
+        this.sleep_time = (int) (duration * 1000);
+        this.each_length = (int) (this.duration * sample_rate);
         this.message = message;
         this.sample = new double[each_length];
         this.shorts = new short[each_length];
@@ -108,7 +111,7 @@ public class Certain_Time_Tone_Sender {
             audioTrack.write(shorts, 0, shorts.length);
             audioTrack.play();
             try {
-                TimeUnit.MILLISECONDS.sleep(300);
+                TimeUnit.MILLISECONDS.sleep(sleep_time);
             } catch (Exception e) {
                 Log.d("CANNOTSLEEP", "CANNOT SLEEP");
             }
@@ -165,7 +168,7 @@ public class Certain_Time_Tone_Sender {
                 boolean_index++;
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(300);
+                TimeUnit.MILLISECONDS.sleep(sleep_time);
             } catch (Exception e) {
                 Log.d("CANNOTSLEEP", "CANNOT SLEEP");
             }
@@ -176,12 +179,23 @@ public class Certain_Time_Tone_Sender {
         }
         Log.d("ASCIIASCII", "Finish_v2");
         while (isClear) {
+            if (audioTrack != null) {
+                audioTrack.release();
+            }
             generate_tone(true,true);
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
             audioTrack.write(shorts, 0, shorts.length);
-            audioTrack.play();
             try {
-                TimeUnit.MILLISECONDS.sleep(300);
+                audioTrack.play();
+            } catch (Exception e) {
+                generate_tone(true, true);
+                audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
+                audioTrack.write(shorts, 0, shorts.length);
+                audioTrack.play();
+            }
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(sleep_time);
             } catch (Exception e) {
                 Log.d("CANNOTSLEEP", "CANNOT SLEEP");
             }
