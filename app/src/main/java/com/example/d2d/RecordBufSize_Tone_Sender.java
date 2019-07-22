@@ -256,3 +256,5 @@ public class RecordBufSize_Tone_Sender {
     }
 
 }
+
+// This class is deprecated due to the potential incompatibility (function: setPlaybackPositionUpdateListener) of android device with lower API level

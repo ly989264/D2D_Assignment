@@ -22,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class Task4 extends AppCompatActivity {
+public class Task5 extends AppCompatActivity {
 
     private TextView textView_params;
     private Button button_reset_params;
@@ -44,24 +44,24 @@ public class Task4 extends AppCompatActivity {
 
     private long threshold;
 
-    private ArrayList<my_longs> intermediate_data = new ArrayList<>();
+    private ArrayList<Task5.my_longs_5> intermediate_data = new ArrayList<>();
     private ArrayList<Integer> res = new ArrayList<>();
     private ArrayList<Integer> second_res = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task4);
+        setContentView(R.layout.activity_task5);
         recordBufSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        textView_params = (TextView) findViewById(R.id.textview_Task4_params);
-        button_reset_params = (Button) findViewById(R.id.button_Task4_reset_params);
-        editText_input_message = (EditText) findViewById(R.id.edittext_Task4_inputmessage);
-        button_send_message = (Button) findViewById(R.id.button_Task4_sendmessage);
-        textView_sender_status = (TextView) findViewById(R.id.textview_Task4_send_status);
-        textView_receiver_status = (TextView) findViewById(R.id.textview_Task4_receiver_status);
-        button_start_receive = (Button) findViewById(R.id.button_Task4_receiver);
-        button_stop_receive = (Button) findViewById(R.id.button_Task4_stop_receive);
-        button_show_result = (Button) findViewById(R.id.button_Task4_show_result);
+        textView_params = (TextView) findViewById(R.id.textview_Task5_params);
+        button_reset_params = (Button) findViewById(R.id.button_Task5_reset_params);
+        editText_input_message = (EditText) findViewById(R.id.edittext_Task5_inputmessage);
+        button_send_message = (Button) findViewById(R.id.button_Task5_sendmessage);
+        textView_sender_status = (TextView) findViewById(R.id.textview_Task5_send_status);
+        textView_receiver_status = (TextView) findViewById(R.id.textview_Task5_receiver_status);
+        button_start_receive = (Button) findViewById(R.id.button_Task5_receiver);
+        button_stop_receive = (Button) findViewById(R.id.button_Task5_stop_receive);
+        button_show_result = (Button) findViewById(R.id.button_Task5_show_result);
         button_reset_params.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,7 +99,7 @@ public class Task4 extends AppCompatActivity {
 
 
     private void set_params() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Task4.this);
+        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Task5.this);
         alertBuilder.setCancelable(false);
         alertBuilder.setTitle("Choose Data Transfer Parameter");
         alertBuilder.setMessage("Which data transfer duration for each bit you want to use?");
@@ -133,10 +133,18 @@ public class Task4 extends AppCompatActivity {
         return result;
     }
 
+    private int get_hash_message(String message) {
+        int hash = 7;
+        for (int index = 0; index < message.length(); index++) {
+            hash = hash * 31 + (int) message.charAt(index);
+        }
+        hash = hash % 127;
+        return hash + 128;
+    }
 
     private void send_message() {
         if (editText_input_message.getText().length() == 0) {
-            Toast.makeText(Task4.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
+            Toast.makeText(Task5.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
             return;
         }
         String message = editText_input_message.getText().toString();
@@ -162,19 +170,19 @@ public class Task4 extends AppCompatActivity {
 //            result += (each?"1":"0");
 //        }
 //        Log.d("ASCIIOFMESSAGE", result);
-//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize, bits, Task4.this);
+//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize, bits, Task5.this);
 //        sender.generate_tone();
 //        sender.play_sound();
 
 
-//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize*2, message, Task4.this);
+//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize*2, message, Task5.this);
 //        sender.play_sound();
         final String message_copy = message;
         textView_sender_status.setText("Sending: "+message);
         Thread send_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Certain_Time_Tone_Sender sender = new Certain_Time_Tone_Sender(duration_fromAlert, message_copy, Task4.this);
+                Certain_Time_Tone_Sender_T5 sender = new Certain_Time_Tone_Sender_T5(duration_fromAlert, message_copy, Task5.this);
                 sender.play_sound();
             }
         });
@@ -182,7 +190,7 @@ public class Task4 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = message_copy.length() * 8 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
+                int time_to_sleep = (message_copy.length() + 1) * 8 * 3 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -199,25 +207,25 @@ public class Task4 extends AppCompatActivity {
         setting_timer.start();
     }
 
-    private class my_shorts {
+    private class my_shorts_5 {
         // what "shorts" means is an array of short, not clothes...
         short[] shorts;
         Context context;
 
-        my_shorts(int recordBufSize, short[] shorts, Context context) {
+        my_shorts_5(int recordBufSize, short[] shorts, Context context) {
             this.shorts = new short[recordBufSize];
             this.shorts = shorts;
             this.context = context;
         }
     }
 
-    private class my_longs {
+    private class my_longs_5 {
         long clearh;
         long clearl;
         long high;
         long low;
 
-        my_longs(long a, long b, long c, long d) {
+        my_longs_5(long a, long b, long c, long d) {
             this.clearh = a;
             this.clearl = b;
             this.high = c;
@@ -244,7 +252,7 @@ public class Task4 extends AppCompatActivity {
     }
 
     private void receive() {
-        Log.d("TASK4STARTRECEIVE", "Start receive");
+        Log.d("Task5STARTRECEIVE", "Start receive");
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(new Runnable() {
@@ -269,8 +277,8 @@ public class Task4 extends AppCompatActivity {
         });
         while (isRecording) {
             recorder.read(sData, 0, container_size_fromAlert);
-            my_shorts current_shorts = new my_shorts(container_size_fromAlert, sData, Task4.this);
-            new asyncOperate().execute(current_shorts);
+            Task5.my_shorts_5 current_shorts = new Task5.my_shorts_5(container_size_fromAlert, sData, Task5.this);
+            new Task5.asyncOperate().execute(current_shorts);
 
         }
         runOnUiThread(new Runnable() {
@@ -313,7 +321,7 @@ public class Task4 extends AppCompatActivity {
             }
         }
         threshold = (long) (temp_long * 0.03);
-        for (my_longs each : intermediate_data) {
+        for (Task5.my_longs_5 each : intermediate_data) {
 
             //************************Writing test
             String str = "";
@@ -420,22 +428,50 @@ public class Task4 extends AppCompatActivity {
         // fixed
         //*********************Plan B
 
-
-
+        int temp_from_sec = 0;
+        int temp_sec_cnt = 0;
         cnt = 0;
         String string = "";
         ArrayList<Integer> bytes = new ArrayList<>();
         int temp = 0;
         for (int each : second_res) {
-            switch (each) {
-                case 3:
-                    bytes.add(0);
-                    cnt++;
-                    break;
-                case 2:
-                    bytes.add(1);
-                    cnt++;
-                    break;
+            if (each == 0 || each == 1) {
+                continue;
+            }
+            temp_sec_cnt++;
+            if (each == 2) {
+                temp_from_sec += self_pow(2, temp_sec_cnt-1);
+            }
+            if (temp_sec_cnt == 3) {
+                temp_sec_cnt = 0;
+                cnt++;
+                switch (temp_from_sec) {
+                    case 0:
+                        bytes.add(0);
+                        break;
+                    case 1:
+                        bytes.add(0);
+                        break;
+                    case 2:
+                        bytes.add(0);
+                        break;
+                    case 3:
+                        bytes.add(1);
+                        break;
+                    case 4:
+                        bytes.add(0);
+                        break;
+                    case 5:
+                        bytes.add(1);
+                        break;
+                    case 6:
+                        bytes.add(1);
+                        break;
+                    case 7:
+                        bytes.add(1);
+                        break;
+                }
+                temp_from_sec = 0;
             }
             if (cnt == 8) {
                 temp = 0;
@@ -447,11 +483,23 @@ public class Task4 extends AppCompatActivity {
                 cnt = 0;
             }
         }
-
-        textView_receiver_status.setText(string);
+        String final_result = null;
+        String hash_string = null;
+        if (string.length() > 1) {
+            final_result = string.substring(0, string.length()-1);
+            hash_string = string.substring(string.length()-1);
+            int hash_value = hash_string.charAt(0);
+            if (get_hash_message(final_result) == hash_value) {
+                textView_receiver_status.setText(final_result);
+            } else {
+                textView_receiver_status.setText("Not transmitted successfully");
+            }
+        } else {
+            textView_receiver_status.setText("Not transmitted successfully, c1");
+        }
     }
 
-    class asyncOperate extends AsyncTask<my_shorts, Void, my_longs> {
+    class asyncOperate extends AsyncTask<Task5.my_shorts_5, Void, Task5.my_longs_5> {
 
         private double[] freqs = {1000, 400, 3000};
 
@@ -461,7 +509,7 @@ public class Task4 extends AppCompatActivity {
         }
 
         @Override
-        protected my_longs doInBackground(my_shorts... my_shorts) {
+        protected Task5.my_longs_5 doInBackground(Task5.my_shorts_5... my_shorts) {
             Parse_freq parser = new Parse_freq(44100, 19000, 552, container_size_fromAlert, my_shorts[0].shorts);
             long result_clearh = Long.parseLong(parser.analyse());
             parser.set_params(18500);
@@ -485,19 +533,19 @@ public class Task4 extends AppCompatActivity {
 
 
             //        // collect some data for analysis
-        FileOutputStream out = null;
-        BufferedWriter writer = null;
-        try {
-            out = my_shorts[0].context.openFileOutput("data7.txt", Context.MODE_APPEND);
-            writer = new BufferedWriter(new OutputStreamWriter(out));
-            writer.write(str);
-            writer.write("\n");
-            writer.close();
-        } catch (Exception e) {
-            Log.d("ASCIIASCII", "Wrong exporting");
-        }
+            FileOutputStream out = null;
+            BufferedWriter writer = null;
+            try {
+                out = my_shorts[0].context.openFileOutput("data9.txt", Context.MODE_APPEND);
+                writer = new BufferedWriter(new OutputStreamWriter(out));
+                writer.write(str);
+                writer.write("\n");
+                writer.close();
+            } catch (Exception e) {
+                Log.d("ASCIIASCII", "Wrong exporting");
+            }
 
-            return new my_longs(result_clearh, result_clearl, result_high, result_low);
+            return new Task5.my_longs_5(result_clearh, result_clearl, result_high, result_low);
         }
 
         @Override
@@ -506,7 +554,7 @@ public class Task4 extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(my_longs my_longs) {
+        protected void onPostExecute(Task5.my_longs_5 my_longs) {
             super.onPostExecute(my_longs);
             intermediate_data.add(my_longs);
 //            runOnUiThread(new Runnable() {
@@ -516,13 +564,6 @@ public class Task4 extends AppCompatActivity {
 //                }
 //            });
         }
+
     }
-
 }
-
-// new technology:
-// for each time interval (0.3s), use 2/3 (66.7%) to transmit the data, so
-// transmit two blocks of data, and the receiver receives three blocks,
-// in which two are data and one is used as guard block
-
-// Todo: after sending, should display "Done"

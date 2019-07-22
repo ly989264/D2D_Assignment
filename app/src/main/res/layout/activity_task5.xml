@@ -5,13 +5,13 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textview_Task4_params"
+        android:id="@+id/textview_Task5_params"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right" />
 
     <Button
-        android:id="@+id/button_Task4_reset_params"
+        android:id="@+id/button_Task5_reset_params"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Reset Params"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/edittext_Task4_inputmessage"
+            android:id="@+id/edittext_Task5_inputmessage"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="7"
@@ -40,7 +40,7 @@
             android:textSize="18dp" />
 
         <Button
-            android:id="@+id/button_Task4_sendmessage"
+            android:id="@+id/button_Task5_sendmessage"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="3"
@@ -49,7 +49,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textview_Task4_send_status"
+        android:id="@+id/textview_Task5_send_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -72,7 +72,7 @@
         android:gravity="center"/>
 
     <Button
-        android:id="@+id/button_Task4_receiver"
+        android:id="@+id/button_Task5_receiver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="60dp"
@@ -88,7 +88,7 @@
         android:layout_marginRight="60dp">
 
         <Button
-            android:id="@+id/button_Task4_stop_receive"
+            android:id="@+id/button_Task5_stop_receive"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="5"
@@ -96,7 +96,7 @@
             android:textSize="15dp"/>
 
         <Button
-            android:id="@+id/button_Task4_show_result"
+            android:id="@+id/button_Task5_show_result"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="5"
@@ -105,7 +105,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/textview_Task4_receiver_status"
+        android:id="@+id/textview_Task5_receiver_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="60dp"
