@@ -24,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Task4 extends AppCompatActivity {
 
+    private TextView textView_params;
+    private Button button_reset_params;
     private EditText editText_input_message;
     private Button button_send_message;
     private TextView textView_sender_status;
@@ -51,6 +53,8 @@ public class Task4 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task4);
         recordBufSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        textView_params = (TextView) findViewById(R.id.textview_Task4_params);
+        button_reset_params = (Button) findViewById(R.id.button_Task4_reset_params);
         editText_input_message = (EditText) findViewById(R.id.edittext_Task4_inputmessage);
         button_send_message = (Button) findViewById(R.id.button_Task4_sendmessage);
         textView_sender_status = (TextView) findViewById(R.id.textview_Task4_send_status);
@@ -58,6 +62,12 @@ public class Task4 extends AppCompatActivity {
         button_start_receive = (Button) findViewById(R.id.button_Task4_receiver);
         button_stop_receive = (Button) findViewById(R.id.button_Task4_stop_receive);
         button_show_result = (Button) findViewById(R.id.button_Task4_show_result);
+        button_reset_params.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                set_params();
+            }
+        });
         button_show_result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,6 +94,11 @@ public class Task4 extends AppCompatActivity {
                 stopReceive();
             }
         });
+        set_params();
+    }
+
+
+    private void set_params() {
         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Task4.this);
         alertBuilder.setCancelable(false);
         alertBuilder.setTitle("Choose Data Transfer Parameter");
@@ -94,6 +109,7 @@ public class Task4 extends AppCompatActivity {
                 duration_fromAlert = 0.3;
                 container_size_fromAlert = 4410;
                 sleep_time_fromAlert = 360;
+                textView_params.setText("Duration: 0.3s");
             }
         });
         alertBuilder.setNegativeButton("0.15s", new DialogInterface.OnClickListener() {
@@ -102,14 +118,10 @@ public class Task4 extends AppCompatActivity {
                 duration_fromAlert = 0.15;
                 container_size_fromAlert = 2205;
                 sleep_time_fromAlert = 200;
+                textView_params.setText("Duration: 0.15s");
             }
         });
         alertBuilder.show();
-    }
-
-
-    private void send_bits(byte[] bytes) {
-
     }
 
 
@@ -295,48 +307,120 @@ public class Task4 extends AppCompatActivity {
     private void intermediate_data_process() {
         res.clear();
         long temp_long = 0;
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             if (intermediate_data.get(i).clearh > temp_long) {
                 temp_long = intermediate_data.get(i).clearh;
             }
         }
         threshold = (long) (temp_long * 0.03);
         for (my_longs each : intermediate_data) {
+
+            //************************Writing test
+            String str = "";
+            str+=each.clearh;
+            str+=" ";
+            str+=each.clearl;
+            str+=" ";
+            str+=each.high;
+            str+=" ";
+            str+=each.low;
+
+            //        // collect some data for analysis
+            FileOutputStream out = null;
+            BufferedWriter writer = null;
+            try {
+                out = openFileOutput("data8.txt", Context.MODE_APPEND);
+                writer = new BufferedWriter(new OutputStreamWriter(out));
+                writer.write(str);
+                writer.write("\n");
+                writer.close();
+            } catch (Exception e) {
+                Log.d("ASCIIASCII", "Wrong exporting");
+            }
+            //************************Writing test
+
             if (each.check_noise()) {
                 res.add(each.generator());
             } else {
                 res.add(-1);
             }
         }
+        //*************************Plan A
+//        int cnt = 0;
+//        int prev_pos = -1;
+//        boolean clear_flag = false;
+//        second_res.clear();
+//        for (int current_index = 0; current_index < res.size(); current_index++) {
+//            if (! clear_flag) {
+//                if (res.get(current_index) == -1) {
+//                    continue;
+//                }
+//                if (res.get(current_index) == 0) {
+//                    clear_flag = true;
+//                    cnt++;
+//                    prev_pos = 0;
+//                    continue;
+//                }
+//                continue;
+//            }
+//            if (res.get(current_index) == prev_pos) {
+//                cnt++;
+//            } else if (res.get(current_index) == -1) {
+//                if (cnt != 0) {
+//                    second_res.add(prev_pos);
+//                    cnt = 0;
+//                }
+//            } else {
+//                if (cnt > 1) {
+//                    second_res.add(prev_pos);
+//                }
+//                prev_pos = res.get(current_index);
+//                cnt = 0;
+//            }
+//        }
+        //*************************Plan A
+
+        // need to test the Plan A and Plan B
+        // Plan B need to solve 223333 problem
+
+        //*************************Plan B
         int cnt = 0;
-        int prev_pos = -1;
+        int prev_pos = -5;
         boolean clear_flag = false;
         second_res.clear();
+        // modified
         for (int current_index = 0; current_index < res.size(); current_index++) {
-            if (! clear_flag) {
-                if (res.get(current_index) == -1) {
-                    continue;
-                }
-                if (res.get(current_index) == 0) {
-                    clear_flag = true;
-                    cnt++;
-                    prev_pos = 0;
-                    continue;
-                }
-                continue;
+            if (prev_pos == -5 && res.get(current_index) != -1) {
+                prev_pos = res.get(current_index);
+                cnt = 1;
             }
-            if (res.get(current_index) == prev_pos) {
-                cnt++;
+            else if (res.get(current_index) == prev_pos) {
+                if (cnt > 3) {
+                    second_res.add(prev_pos);
+                    cnt = 1;
+                } else {
+                    cnt++;
+                }
             } else if (res.get(current_index) == -1) {
                 if (cnt != 0) {
                     second_res.add(prev_pos);
+                    prev_pos = -5;
                     cnt = 0;
                 }
             } else {
+                if (cnt > 1) {
+                    second_res.add(prev_pos);
+                }
+                cnt = 1;
                 prev_pos = res.get(current_index);
-                cnt = 0;
             }
         }
+//        Plan B has potential problem of situation such as 223333
+        //22333 222333
+        //*********************Plan B
+
+
+
         cnt = 0;
         String string = "";
         ArrayList<Integer> bytes = new ArrayList<>();
