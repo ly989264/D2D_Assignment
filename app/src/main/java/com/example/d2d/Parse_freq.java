@@ -62,7 +62,7 @@ public class Parse_freq {
         for (int index = 0; index < n; index++) {
             short each = shorts[index];
             processSample(each);
-            Log.d("CHECKINGGOERTZEL", ""+each);
+//            Log.d("CHECKINGGOERTZEL", ""+each);
         }
 
         double realPart = (q1 - q2 * cosine);

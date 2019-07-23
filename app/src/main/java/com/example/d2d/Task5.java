@@ -489,10 +489,14 @@ public class Task5 extends AppCompatActivity {
             final_result = string.substring(0, string.length()-1);
             hash_string = string.substring(string.length()-1);
             int hash_value = hash_string.charAt(0);
+//            Log.d("HASHINGHASHING", ""+hash_string);
+            Log.d("HASHINGHASHING", "final_string: "+final_result);
+            Log.d("HASHINGHASHING", "hash_value: "+hash_value);
+            Log.d("HASHINGHASHING", "calculated: "+get_hash_message(final_result));
             if (get_hash_message(final_result) == hash_value) {
                 textView_receiver_status.setText(final_result);
             } else {
-                textView_receiver_status.setText("Not transmitted successfully");
+                textView_receiver_status.setText("Not transmitted successfully "+hash_value);
             }
         } else {
             textView_receiver_status.setText("Not transmitted successfully, c1");
