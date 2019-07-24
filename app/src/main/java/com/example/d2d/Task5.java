@@ -44,6 +44,8 @@ public class Task5 extends AppCompatActivity {
 
     private long threshold;
 
+    private boolean wrong = false;
+
     private ArrayList<Task5.my_longs_5> intermediate_data = new ArrayList<>();
     private ArrayList<Integer> res = new ArrayList<>();
     private ArrayList<Integer> second_res = new ArrayList<>();
@@ -112,13 +114,13 @@ public class Task5 extends AppCompatActivity {
                 textView_params.setText("Duration: 0.3s");
             }
         });
-        alertBuilder.setNegativeButton("0.15s", new DialogInterface.OnClickListener() {
+        alertBuilder.setNegativeButton("0.09s", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                duration_fromAlert = 0.15;
-                container_size_fromAlert = 2205;
-                sleep_time_fromAlert = 200;
-                textView_params.setText("Duration: 0.15s");
+                duration_fromAlert = 0.09;
+                container_size_fromAlert = 1323;
+                sleep_time_fromAlert = 125;
+                textView_params.setText("Duration: 0.09s");
             }
         });
         alertBuilder.show();
@@ -190,7 +192,7 @@ public class Task5 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = (message_copy.length() + 1) * 8 * 3 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
+                int time_to_sleep = (message_copy.length() + 1) * 4 * 2 * sleep_time_fromAlert + 4 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -224,27 +226,36 @@ public class Task5 extends AppCompatActivity {
         long clearl;
         long high;
         long low;
+        long high2;
+        long low2;
 
-        my_longs_5(long a, long b, long c, long d) {
+        my_longs_5(long a, long b, long c, long d, long e, long f) {
             this.clearh = a;
             this.clearl = b;
             this.high = c;
             this.low = d;
+            this.high2 = e;
+            this.low2 = f;
         }
 
         public int generator() {
-            if (clearh > clearl && clearh > high && clearh > low) {
-                return 0;
-            } else if (clearl > clearh && clearl > high && clearl > low) {
-                return 1;
-            } else if (high > clearh && high > clearl && high > low) {
-                return 2;
+            if (clearh > clearl && clearh > high && clearh > low && clearh > high2 && clearh > low2) {
+                return 0;  // clearh
+            } else if (clearl > clearh && clearl > high && clearl > low && clearl > high2 && clearl > low2) {
+                return 1;  // clearl
+            } else if (high > clearh && high > clearl && high > low && high > high2 && high > low2) {
+                return 2;  // high
+            } else if (low > clearh && low > clearl && low > high && low > high2 && low > low2) {
+                return 3;  // low
+            } else if (high2 > clearh && high2 > clearl && high2 > high && high2 > low && high2 > low2) {
+                return 4;  // high2
+            } else {
+                return 5;  // low2
             }
-            return 3;
         }
 
         public boolean check_noise() {
-            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold) {
+            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold || high2 > threshold || low2 > threshold) {
                 return true;
             }
             return false;
@@ -332,6 +343,10 @@ public class Task5 extends AppCompatActivity {
             str+=each.high;
             str+=" ";
             str+=each.low;
+            str+=" ";
+            str+=each.high2;
+            str+=" ";
+            str+=each.low2;
 
             //        // collect some data for analysis
             FileOutputStream out = null;
@@ -353,6 +368,24 @@ public class Task5 extends AppCompatActivity {
                 res.add(-1);
             }
         }
+        //************************Writing test
+        String str_2 = "";
+        for(int index = 0; index < res.size(); index++) {
+            str_2 += res.get(index);
+            str_2 += " ";
+        }
+        FileOutputStream out2 = null;
+        BufferedWriter writer2 = null;
+        try {
+            out2 = openFileOutput("data10.txt", Context.MODE_APPEND);
+            writer2 = new BufferedWriter(new OutputStreamWriter(out2));
+            writer2.write(str_2);
+            writer2.write("\n");
+            writer2.close();
+        } catch (Exception e) {
+            Log.d("ASCIIASCII", "Wrong exporting");
+        }
+        //************************Writing test
         //*************************Plan A
 //        int cnt = 0;
 //        int prev_pos = -1;
@@ -438,40 +471,61 @@ public class Task5 extends AppCompatActivity {
             if (each == 0 || each == 1) {
                 continue;
             }
+            Log.d("holahola", ""+each);
             temp_sec_cnt++;
             if (each == 2) {
-                temp_from_sec += self_pow(2, temp_sec_cnt-1);
+                temp_from_sec += self_pow(2, (3 - temp_sec_cnt)*2-1);
+                temp_from_sec += self_pow(2, (3 - temp_sec_cnt)*2-2);
+            } else if (each == 4) {
+                temp_from_sec += self_pow(2, (3 - temp_sec_cnt)*2-1);
+            } else if (each == 5) {
+                temp_from_sec += self_pow(2, (3 - temp_sec_cnt)*2-2);
             }
-            if (temp_sec_cnt == 3) {
+            if (temp_sec_cnt == 2) {
                 temp_sec_cnt = 0;
+                cnt++;
                 cnt++;
                 switch (temp_from_sec) {
                     case 0:
                         bytes.add(0);
-                        break;
-                    case 1:
-                        bytes.add(0);
-                        break;
-                    case 2:
                         bytes.add(0);
                         break;
                     case 3:
-                        bytes.add(1);
-                        break;
-                    case 4:
                         bytes.add(0);
+                        bytes.add(1);
                         break;
                     case 5:
                         bytes.add(1);
+                        bytes.add(0);
                         break;
                     case 6:
                         bytes.add(1);
-                        break;
-                    case 7:
                         bytes.add(1);
                         break;
+                    case 8:
+                        bytes.add(0);
+                        bytes.add(0);
+                        break;
+                    case 11:
+                        bytes.add(0);
+                        bytes.add(1);
+                        break;
+                    case 13:
+                        bytes.add(1);
+                        bytes.add(0);
+                        break;
+                    case 14:
+                        bytes.add(1);
+                        bytes.add(1);
+                        break;
+                        default:
+                            wrong = true;
+                            break;
                 }
                 temp_from_sec = 0;
+            }
+            if (wrong) {
+                break;
             }
             if (cnt == 8) {
                 temp = 0;
@@ -485,6 +539,10 @@ public class Task5 extends AppCompatActivity {
         }
         String final_result = null;
         String hash_string = null;
+        if (wrong) {
+            textView_receiver_status.setText("Potential error occurs detected from Hamming distance");
+            return;
+        }
         if (string.length() > 1) {
             final_result = string.substring(0, string.length()-1);
             hash_string = string.substring(string.length()-1);
@@ -501,6 +559,7 @@ public class Task5 extends AppCompatActivity {
         } else {
             textView_receiver_status.setText("Not transmitted successfully, c1");
         }
+//        textView_receiver_status.setText(string);
     }
 
     class asyncOperate extends AsyncTask<Task5.my_shorts_5, Void, Task5.my_longs_5> {
@@ -522,6 +581,10 @@ public class Task5 extends AppCompatActivity {
             long result_high = Long.parseLong(parser.analyse());
             parser.set_params(17500);
             long result_low = Long.parseLong(parser.analyse());
+            parser.set_params(17000);
+            long result_high2 = Long.parseLong(parser.analyse());
+            parser.set_params(16500);
+            long result_low2 = Long.parseLong(parser.analyse());
 
 //            if (result_clearh > result_high || result_clearl > )
 
@@ -533,6 +596,10 @@ public class Task5 extends AppCompatActivity {
             str+=result_high;
             str+=" ";
             str+=result_low;
+            str+=" ";
+            str+=result_high2;
+            str+=" ";
+            str+=result_low2;
             Log.d("BACKGROUNDRESULT", str);
 
 
@@ -549,7 +616,7 @@ public class Task5 extends AppCompatActivity {
                 Log.d("ASCIIASCII", "Wrong exporting");
             }
 
-            return new Task5.my_longs_5(result_clearh, result_clearl, result_high, result_low);
+            return new Task5.my_longs_5(result_clearh, result_clearl, result_high, result_low, result_high2, result_low2);
         }
 
         @Override

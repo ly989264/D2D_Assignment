@@ -112,13 +112,13 @@ public class Task4 extends AppCompatActivity {
                 textView_params.setText("Duration: 0.3s");
             }
         });
-        alertBuilder.setNegativeButton("0.15s", new DialogInterface.OnClickListener() {
+        alertBuilder.setNegativeButton("0.09s", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                duration_fromAlert = 0.15;
-                container_size_fromAlert = 2205;
-                sleep_time_fromAlert = 200;
-                textView_params.setText("Duration: 0.15s");
+                duration_fromAlert = 0.09;
+                container_size_fromAlert = 1323;
+                sleep_time_fromAlert = 125;
+                textView_params.setText("Duration: 0.09s");
             }
         });
         alertBuilder.show();
@@ -182,7 +182,7 @@ public class Task4 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = message_copy.length() * 8 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
+                int time_to_sleep = message_copy.length() * 4 * sleep_time_fromAlert + 4 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -216,27 +216,36 @@ public class Task4 extends AppCompatActivity {
         long clearl;
         long high;
         long low;
+        long high2;
+        long low2;
 
-        my_longs(long a, long b, long c, long d) {
+        my_longs(long a, long b, long c, long d, long e, long f) {
             this.clearh = a;
             this.clearl = b;
             this.high = c;
             this.low = d;
+            this.high2 = e;
+            this.low2 = f;
         }
 
         public int generator() {
-            if (clearh > clearl && clearh > high && clearh > low) {
-                return 0;
-            } else if (clearl > clearh && clearl > high && clearl > low) {
-                return 1;
-            } else if (high > clearh && high > clearl && high > low) {
-                return 2;
+            if (clearh > clearl && clearh > high && clearh > low && clearh > high2 && clearh > low2) {
+                return 0;  // clearh
+            } else if (clearl > clearh && clearl > high && clearl > low && clearl > high2 && clearl > low2) {
+                return 1;  // clearl
+            } else if (high > clearh && high > clearl && high > low && high > high2 && high > low2) {
+                return 2;  // high
+            } else if (low > clearh && low > clearl && low > high && low > high2 && low > low2) {
+                return 3;  // low
+            } else if (high2 > clearh && high2 > clearl && high2 > high && high2 > low && high2 > low2) {
+                return 4;  // high2
+            } else {
+                return 5;  // low2
             }
-            return 3;
         }
 
         public boolean check_noise() {
-            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold) {
+            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold || high2 > threshold || low2 > threshold) {
                 return true;
             }
             return false;
@@ -324,6 +333,10 @@ public class Task4 extends AppCompatActivity {
             str+=each.high;
             str+=" ";
             str+=each.low;
+            str+=" ";
+            str+=each.high2;
+            str+=" ";
+            str+=each.low2;
 
             //        // collect some data for analysis
             FileOutputStream out = null;
@@ -428,11 +441,27 @@ public class Task4 extends AppCompatActivity {
         int temp = 0;
         for (int each : second_res) {
             switch (each) {
-                case 3:
+                case 3:// low 00
+                    bytes.add(0);
+                    cnt++;
                     bytes.add(0);
                     cnt++;
                     break;
-                case 2:
+                case 2://high 11
+                    bytes.add(1);
+                    cnt++;
+                    bytes.add(1);
+                    cnt++;
+                    break;
+                case 4://high2 10
+                    bytes.add(1);
+                    cnt++;
+                    bytes.add(0);
+                    cnt++;
+                    break;
+                case 5://low2  01
+                    bytes.add(0);
+                    cnt++;
                     bytes.add(1);
                     cnt++;
                     break;
@@ -470,6 +499,10 @@ public class Task4 extends AppCompatActivity {
             long result_high = Long.parseLong(parser.analyse());
             parser.set_params(17500);
             long result_low = Long.parseLong(parser.analyse());
+            parser.set_params(17000);
+            long result_high2 = Long.parseLong(parser.analyse());
+            parser.set_params(16500);
+            long result_low2 = Long.parseLong(parser.analyse());
 
 //            if (result_clearh > result_high || result_clearl > )
 
@@ -481,6 +514,10 @@ public class Task4 extends AppCompatActivity {
             str+=result_high;
             str+=" ";
             str+=result_low;
+            str+=" ";
+            str+=result_high2;
+            str+=" ";
+            str+=result_low2;
             Log.d("BACKGROUNDRESULT", str);
 
 
@@ -497,7 +534,7 @@ public class Task4 extends AppCompatActivity {
             Log.d("ASCIIASCII", "Wrong exporting");
         }
 
-            return new my_longs(result_clearh, result_clearl, result_high, result_low);
+            return new my_longs(result_clearh, result_clearl, result_high, result_low, result_high2, result_low2);
         }
 
         @Override
