@@ -22,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class Task4 extends AppCompatActivity {
+public class Task5_BFSK extends AppCompatActivity {
 
     private TextView textView_params;
     private EditText editText_input_message;
@@ -43,23 +43,23 @@ public class Task4 extends AppCompatActivity {
 
     private long threshold;
 
-    private ArrayList<my_longs> intermediate_data = new ArrayList<>();
+    private ArrayList<Task5_BFSK.my_longs_5> intermediate_data = new ArrayList<>();
     private ArrayList<Integer> res = new ArrayList<>();
     private ArrayList<Integer> second_res = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task4);
+        setContentView(R.layout.activity_task5);
         recordBufSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        textView_params = (TextView) findViewById(R.id.textview_Task4_params);
-        editText_input_message = (EditText) findViewById(R.id.edittext_Task4_inputmessage);
-        button_send_message = (Button) findViewById(R.id.button_Task4_sendmessage);
-        textView_sender_status = (TextView) findViewById(R.id.textview_Task4_send_status);
-        textView_receiver_status = (TextView) findViewById(R.id.textview_Task4_receiver_status);
-        button_start_receive = (Button) findViewById(R.id.button_Task4_receiver);
-        button_stop_receive = (Button) findViewById(R.id.button_Task4_stop_receive);
-        button_show_result = (Button) findViewById(R.id.button_Task4_show_result);
+        textView_params = (TextView) findViewById(R.id.textview_Task5_params);
+        editText_input_message = (EditText) findViewById(R.id.edittext_Task5_inputmessage);
+        button_send_message = (Button) findViewById(R.id.button_Task5_sendmessage);
+        textView_sender_status = (TextView) findViewById(R.id.textview_Task5_send_status);
+        textView_receiver_status = (TextView) findViewById(R.id.textview_Task5_receiver_status);
+        button_start_receive = (Button) findViewById(R.id.button_Task5_receiver);
+        button_stop_receive = (Button) findViewById(R.id.button_Task5_stop_receive);
+        button_show_result = (Button) findViewById(R.id.button_Task5_show_result);
         button_show_result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,10 +106,18 @@ public class Task4 extends AppCompatActivity {
         return result;
     }
 
+    private int get_hash_message(String message) {
+        int hash = 7;
+        for (int index = 0; index < message.length(); index++) {
+            hash = hash * 31 + (int) message.charAt(index);
+        }
+        hash = hash % 127;
+        return hash + 128;
+    }
 
     private void send_message() {
         if (editText_input_message.getText().length() == 0) {
-            Toast.makeText(Task4.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
+            Toast.makeText(Task5_BFSK.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
             return;
         }
         String message = editText_input_message.getText().toString();
@@ -135,19 +143,19 @@ public class Task4 extends AppCompatActivity {
 //            result += (each?"1":"0");
 //        }
 //        Log.d("ASCIIOFMESSAGE", result);
-//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize, bits, Task4.this);
+//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize, bits, Task5.this);
 //        sender.generate_tone();
 //        sender.play_sound();
 
 
-//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize*2, message, Task4.this);
+//        RecordBufSize_Tone_Sender sender = new RecordBufSize_Tone_Sender(recordBufSize*2, message, Task5.this);
 //        sender.play_sound();
         final String message_copy = message;
         textView_sender_status.setText("Sending: "+message);
         Thread send_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Certain_Time_Tone_Sender sender = new Certain_Time_Tone_Sender(duration_fromAlert, message_copy, Task4.this);
+                Certain_Time_Tone_Sender_T5_BFSK sender = new Certain_Time_Tone_Sender_T5_BFSK(duration_fromAlert, message_copy, Task5_BFSK.this);
                 sender.play_sound();
             }
         });
@@ -155,7 +163,7 @@ public class Task4 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = message_copy.length() * 4 * sleep_time_fromAlert + 4 * sleep_time_fromAlert;
+                int time_to_sleep = (message_copy.length() + 1) * 8 * 3 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -172,53 +180,44 @@ public class Task4 extends AppCompatActivity {
         setting_timer.start();
     }
 
-    private class my_shorts {
+    private class my_shorts_5 {
         // what "shorts" means is an array of short, not clothes...
         short[] shorts;
         Context context;
 
-        my_shorts(int recordBufSize, short[] shorts, Context context) {
+        my_shorts_5(int recordBufSize, short[] shorts, Context context) {
             this.shorts = new short[recordBufSize];
             this.shorts = shorts;
             this.context = context;
         }
     }
 
-    private class my_longs {
+    private class my_longs_5 {
         long clearh;
         long clearl;
         long high;
         long low;
-        long high2;
-        long low2;
 
-        my_longs(long a, long b, long c, long d, long e, long f) {
+        my_longs_5(long a, long b, long c, long d) {
             this.clearh = a;
             this.clearl = b;
             this.high = c;
             this.low = d;
-            this.high2 = e;
-            this.low2 = f;
         }
 
         public int generator() {
-            if (clearh > clearl && clearh > high && clearh > low && clearh > high2 && clearh > low2) {
-                return 0;  // clearh
-            } else if (clearl > clearh && clearl > high && clearl > low && clearl > high2 && clearl > low2) {
-                return 1;  // clearl
-            } else if (high > clearh && high > clearl && high > low && high > high2 && high > low2) {
-                return 2;  // high
-            } else if (low > clearh && low > clearl && low > high && low > high2 && low > low2) {
-                return 3;  // low
-            } else if (high2 > clearh && high2 > clearl && high2 > high && high2 > low && high2 > low2) {
-                return 4;  // high2
-            } else {
-                return 5;  // low2
+            if (clearh > clearl && clearh > high && clearh > low) {
+                return 0;
+            } else if (clearl > clearh && clearl > high && clearl > low) {
+                return 1;
+            } else if (high > clearh && high > clearl && high > low) {
+                return 2;
             }
+            return 3;
         }
 
         public boolean check_noise() {
-            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold || high2 > threshold || low2 > threshold) {
+            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold) {
                 return true;
             }
             return false;
@@ -226,7 +225,7 @@ public class Task4 extends AppCompatActivity {
     }
 
     private void receive() {
-//        Log.d("TASK4STARTRECEIVE", "Start receive");
+//        Log.d("Task5STARTRECEIVE", "Start receive");
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(new Runnable() {
@@ -251,8 +250,8 @@ public class Task4 extends AppCompatActivity {
         });
         while (isRecording) {
             recorder.read(sData, 0, container_size_fromAlert);
-            my_shorts current_shorts = new my_shorts(container_size_fromAlert, sData, Task4.this);
-            new asyncOperate().execute(current_shorts);
+            Task5_BFSK.my_shorts_5 current_shorts = new Task5_BFSK.my_shorts_5(container_size_fromAlert, sData, Task5_BFSK.this);
+            new Task5_BFSK.asyncOperate().execute(current_shorts);
 
         }
         runOnUiThread(new Runnable() {
@@ -296,7 +295,7 @@ public class Task4 extends AppCompatActivity {
             }
         }
         threshold = (long) (temp_long * 0.03);
-        for (my_longs each : intermediate_data) {
+        for (Task5_BFSK.my_longs_5 each : intermediate_data) {
 
             //************************Writing test
 //            String str = "";
@@ -307,10 +306,6 @@ public class Task4 extends AppCompatActivity {
 //            str+=each.high;
 //            str+=" ";
 //            str+=each.low;
-//            str+=" ";
-//            str+=each.high2;
-//            str+=" ";
-//            str+=each.low2;
 //
 //            //        // collect some data for analysis
 //            FileOutputStream out = null;
@@ -407,38 +402,50 @@ public class Task4 extends AppCompatActivity {
         // fixed
         //*********************Plan B
 
-
-
+        int temp_from_sec = 0;
+        int temp_sec_cnt = 0;
         cnt = 0;
         String string = "";
         ArrayList<Integer> bytes = new ArrayList<>();
         int temp = 0;
         for (int each : second_res) {
-            switch (each) {
-                case 3:// low 00
-                    bytes.add(0);
-                    cnt++;
-                    bytes.add(0);
-                    cnt++;
-                    break;
-                case 2://high 11
-                    bytes.add(1);
-                    cnt++;
-                    bytes.add(1);
-                    cnt++;
-                    break;
-                case 4://high2 10
-                    bytes.add(1);
-                    cnt++;
-                    bytes.add(0);
-                    cnt++;
-                    break;
-                case 5://low2  01
-                    bytes.add(0);
-                    cnt++;
-                    bytes.add(1);
-                    cnt++;
-                    break;
+            if (each == 0 || each == 1) {
+                continue;
+            }
+            temp_sec_cnt++;
+            if (each == 2) {
+                temp_from_sec += self_pow(2, temp_sec_cnt-1);
+            }
+            if (temp_sec_cnt == 3) {
+                temp_sec_cnt = 0;
+                cnt++;
+                switch (temp_from_sec) {
+                    case 0:
+                        bytes.add(0);
+                        break;
+                    case 1:
+                        bytes.add(0);
+                        break;
+                    case 2:
+                        bytes.add(0);
+                        break;
+                    case 3:
+                        bytes.add(1);
+                        break;
+                    case 4:
+                        bytes.add(0);
+                        break;
+                    case 5:
+                        bytes.add(1);
+                        break;
+                    case 6:
+                        bytes.add(1);
+                        break;
+                    case 7:
+                        bytes.add(1);
+                        break;
+                }
+                temp_from_sec = 0;
             }
             if (cnt == 8) {
                 temp = 0;
@@ -450,11 +457,27 @@ public class Task4 extends AppCompatActivity {
                 cnt = 0;
             }
         }
-
-        textView_receiver_status.setText(string);
+        String final_result = null;
+        String hash_string = null;
+        if (string.length() > 1) {
+            final_result = string.substring(0, string.length()-1);
+            hash_string = string.substring(string.length()-1);
+            int hash_value = hash_string.charAt(0);
+//            Log.d("HASHINGHASHING", ""+hash_string);
+//            Log.d("HASHINGHASHING", "final_string: "+final_result);
+//            Log.d("HASHINGHASHING", "hash_value: "+hash_value);
+//            Log.d("HASHINGHASHING", "calculated: "+get_hash_message(final_result));
+            if (get_hash_message(final_result) == hash_value) {
+                textView_receiver_status.setText(final_result);
+            } else {
+                textView_receiver_status.setText("Not transmitted successfully "+hash_value);
+            }
+        } else {
+            textView_receiver_status.setText("Possibly no data transferred?");
+        }
     }
 
-    class asyncOperate extends AsyncTask<my_shorts, Void, my_longs> {
+    class asyncOperate extends AsyncTask<Task5_BFSK.my_shorts_5, Void, Task5_BFSK.my_longs_5> {
 
         private double[] freqs = {1000, 400, 3000};
 
@@ -464,7 +487,7 @@ public class Task4 extends AppCompatActivity {
         }
 
         @Override
-        protected my_longs doInBackground(my_shorts... my_shorts) {
+        protected Task5_BFSK.my_longs_5 doInBackground(Task5_BFSK.my_shorts_5... my_shorts) {
             Parse_freq parser = new Parse_freq(44100, 19000, 276, container_size_fromAlert, my_shorts[0].shorts);
             long result_clearh = Long.parseLong(parser.analyse());
             parser.set_params(18500);
@@ -473,10 +496,6 @@ public class Task4 extends AppCompatActivity {
             long result_high = Long.parseLong(parser.analyse());
             parser.set_params(17500);
             long result_low = Long.parseLong(parser.analyse());
-            parser.set_params(17000);
-            long result_high2 = Long.parseLong(parser.analyse());
-            parser.set_params(16500);
-            long result_low2 = Long.parseLong(parser.analyse());
 
 //            if (result_clearh > result_high || result_clearl > )
 
@@ -488,27 +507,23 @@ public class Task4 extends AppCompatActivity {
 //            str+=result_high;
 //            str+=" ";
 //            str+=result_low;
-//            str+=" ";
-//            str+=result_high2;
-//            str+=" ";
-//            str+=result_low2;
 //            Log.d("BACKGROUNDRESULT", str);
 //
 //
 //            //        // collect some data for analysis
-//        FileOutputStream out = null;
-//        BufferedWriter writer = null;
-//        try {
-//            out = my_shorts[0].context.openFileOutput("data7.txt", Context.MODE_APPEND);
-//            writer = new BufferedWriter(new OutputStreamWriter(out));
-//            writer.write(str);
-//            writer.write("\n");
-//            writer.close();
-//        } catch (Exception e) {
-//            Log.d("ASCIIASCII", "Wrong exporting");
-//        }
+//            FileOutputStream out = null;
+//            BufferedWriter writer = null;
+//            try {
+//                out = my_shorts[0].context.openFileOutput("data9.txt", Context.MODE_APPEND);
+//                writer = new BufferedWriter(new OutputStreamWriter(out));
+//                writer.write(str);
+//                writer.write("\n");
+//                writer.close();
+//            } catch (Exception e) {
+//                Log.d("ASCIIASCII", "Wrong exporting");
+//            }
 
-            return new my_longs(result_clearh, result_clearl, result_high, result_low, result_high2, result_low2);
+            return new Task5_BFSK.my_longs_5(result_clearh, result_clearl, result_high, result_low);
         }
 
         @Override
@@ -517,7 +532,7 @@ public class Task4 extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(my_longs my_longs) {
+        protected void onPostExecute(Task5_BFSK.my_longs_5 my_longs) {
             super.onPostExecute(my_longs);
             intermediate_data.add(my_longs);
 //            runOnUiThread(new Runnable() {
@@ -527,13 +542,6 @@ public class Task4 extends AppCompatActivity {
 //                }
 //            });
         }
+
     }
-
 }
-
-// new technology:
-// for each time interval (0.3s), use 2/3 (66.7%) to transmit the data, so
-// transmit two blocks of data, and the receiver receives three blocks,
-// in which two are data and one is used as guard block
-
-// Todo: after sending, should display "Done"

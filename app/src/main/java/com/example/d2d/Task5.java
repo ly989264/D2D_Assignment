@@ -25,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 public class Task5 extends AppCompatActivity {
 
     private TextView textView_params;
-    private Button button_reset_params;
     private EditText editText_input_message;
     private Button button_send_message;
     private TextView textView_sender_status;
@@ -56,7 +55,6 @@ public class Task5 extends AppCompatActivity {
         setContentView(R.layout.activity_task5);
         recordBufSize = AudioRecord.getMinBufferSize(44100, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
         textView_params = (TextView) findViewById(R.id.textview_Task5_params);
-        button_reset_params = (Button) findViewById(R.id.button_Task5_reset_params);
         editText_input_message = (EditText) findViewById(R.id.edittext_Task5_inputmessage);
         button_send_message = (Button) findViewById(R.id.button_Task5_sendmessage);
         textView_sender_status = (TextView) findViewById(R.id.textview_Task5_send_status);
@@ -64,12 +62,6 @@ public class Task5 extends AppCompatActivity {
         button_start_receive = (Button) findViewById(R.id.button_Task5_receiver);
         button_stop_receive = (Button) findViewById(R.id.button_Task5_stop_receive);
         button_show_result = (Button) findViewById(R.id.button_Task5_show_result);
-        button_reset_params.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                set_params();
-            }
-        });
         button_show_result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,29 +93,10 @@ public class Task5 extends AppCompatActivity {
 
 
     private void set_params() {
-        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(Task5.this);
-        alertBuilder.setCancelable(false);
-        alertBuilder.setTitle("Choose Data Transfer Parameter");
-        alertBuilder.setMessage("Which data transfer duration for each bit you want to use?");
-        alertBuilder.setPositiveButton("0.3s", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                duration_fromAlert = 0.3;
-                container_size_fromAlert = 4410;
-                sleep_time_fromAlert = 360;
-                textView_params.setText("Duration: 0.3s");
-            }
-        });
-        alertBuilder.setNegativeButton("0.09s", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                duration_fromAlert = 0.09;
-                container_size_fromAlert = 1323;
-                sleep_time_fromAlert = 125;
-                textView_params.setText("Duration: 0.09s");
-            }
-        });
-        alertBuilder.show();
+        duration_fromAlert = 0.06;
+        container_size_fromAlert = 882;
+        sleep_time_fromAlert = 100;
+        textView_params.setText("Duration: 0.06s");
     }
 
 
@@ -263,7 +236,7 @@ public class Task5 extends AppCompatActivity {
     }
 
     private void receive() {
-        Log.d("Task5STARTRECEIVE", "Start receive");
+//        Log.d("Task5STARTRECEIVE", "Start receive");
         recorder.startRecording();
         isRecording = true;
         recordingThread = new Thread(new Runnable() {
@@ -326,7 +299,8 @@ public class Task5 extends AppCompatActivity {
     private void intermediate_data_process() {
         res.clear();
         long temp_long = 0;
-        for (int i = 0; i < 40; i++) {
+        int x = intermediate_data.size() > 60 ? 60 : intermediate_data.size();
+        for (int i = 0; i < x; i++) {
             if (intermediate_data.get(i).clearh > temp_long) {
                 temp_long = intermediate_data.get(i).clearh;
             }
@@ -335,31 +309,31 @@ public class Task5 extends AppCompatActivity {
         for (Task5.my_longs_5 each : intermediate_data) {
 
             //************************Writing test
-            String str = "";
-            str+=each.clearh;
-            str+=" ";
-            str+=each.clearl;
-            str+=" ";
-            str+=each.high;
-            str+=" ";
-            str+=each.low;
-            str+=" ";
-            str+=each.high2;
-            str+=" ";
-            str+=each.low2;
-
-            //        // collect some data for analysis
-            FileOutputStream out = null;
-            BufferedWriter writer = null;
-            try {
-                out = openFileOutput("data8.txt", Context.MODE_APPEND);
-                writer = new BufferedWriter(new OutputStreamWriter(out));
-                writer.write(str);
-                writer.write("\n");
-                writer.close();
-            } catch (Exception e) {
-                Log.d("ASCIIASCII", "Wrong exporting");
-            }
+//            String str = "";
+//            str+=each.clearh;
+//            str+=" ";
+//            str+=each.clearl;
+//            str+=" ";
+//            str+=each.high;
+//            str+=" ";
+//            str+=each.low;
+//            str+=" ";
+//            str+=each.high2;
+//            str+=" ";
+//            str+=each.low2;
+//
+//            //        // collect some data for analysis
+//            FileOutputStream out = null;
+//            BufferedWriter writer = null;
+//            try {
+//                out = openFileOutput("data8.txt", Context.MODE_APPEND);
+//                writer = new BufferedWriter(new OutputStreamWriter(out));
+//                writer.write(str);
+//                writer.write("\n");
+//                writer.close();
+//            } catch (Exception e) {
+//                Log.d("ASCIIASCII", "Wrong exporting");
+//            }
             //************************Writing test
 
             if (each.check_noise()) {
@@ -369,22 +343,22 @@ public class Task5 extends AppCompatActivity {
             }
         }
         //************************Writing test
-        String str_2 = "";
-        for(int index = 0; index < res.size(); index++) {
-            str_2 += res.get(index);
-            str_2 += " ";
-        }
-        FileOutputStream out2 = null;
-        BufferedWriter writer2 = null;
-        try {
-            out2 = openFileOutput("data10.txt", Context.MODE_APPEND);
-            writer2 = new BufferedWriter(new OutputStreamWriter(out2));
-            writer2.write(str_2);
-            writer2.write("\n");
-            writer2.close();
-        } catch (Exception e) {
-            Log.d("ASCIIASCII", "Wrong exporting");
-        }
+//        String str_2 = "";
+//        for(int index = 0; index < res.size(); index++) {
+//            str_2 += res.get(index);
+//            str_2 += " ";
+//        }
+//        FileOutputStream out2 = null;
+//        BufferedWriter writer2 = null;
+//        try {
+//            out2 = openFileOutput("data10.txt", Context.MODE_APPEND);
+//            writer2 = new BufferedWriter(new OutputStreamWriter(out2));
+//            writer2.write(str_2);
+//            writer2.write("\n");
+//            writer2.close();
+//        } catch (Exception e) {
+//            Log.d("ASCIIASCII", "Wrong exporting");
+//        }
         //************************Writing test
         //*************************Plan A
 //        int cnt = 0;
@@ -467,11 +441,11 @@ public class Task5 extends AppCompatActivity {
         String string = "";
         ArrayList<Integer> bytes = new ArrayList<>();
         int temp = 0;
+        // operate hamming code
         for (int each : second_res) {
             if (each == 0 || each == 1) {
                 continue;
             }
-            Log.d("holahola", ""+each);
             temp_sec_cnt++;
             if (each == 2) {
                 temp_from_sec += self_pow(2, (3 - temp_sec_cnt)*2-1);
@@ -548,16 +522,16 @@ public class Task5 extends AppCompatActivity {
             hash_string = string.substring(string.length()-1);
             int hash_value = hash_string.charAt(0);
 //            Log.d("HASHINGHASHING", ""+hash_string);
-            Log.d("HASHINGHASHING", "final_string: "+final_result);
-            Log.d("HASHINGHASHING", "hash_value: "+hash_value);
-            Log.d("HASHINGHASHING", "calculated: "+get_hash_message(final_result));
+//            Log.d("HASHINGHASHING", "final_string: "+final_result);
+//            Log.d("HASHINGHASHING", "hash_value: "+hash_value);
+//            Log.d("HASHINGHASHING", "calculated: "+get_hash_message(final_result));
             if (get_hash_message(final_result) == hash_value) {
                 textView_receiver_status.setText(final_result);
             } else {
                 textView_receiver_status.setText("Not transmitted successfully "+hash_value);
             }
         } else {
-            textView_receiver_status.setText("Not transmitted successfully, c1");
+            textView_receiver_status.setText("Possibly no data transferred?");
         }
 //        textView_receiver_status.setText(string);
     }
@@ -573,7 +547,7 @@ public class Task5 extends AppCompatActivity {
 
         @Override
         protected Task5.my_longs_5 doInBackground(Task5.my_shorts_5... my_shorts) {
-            Parse_freq parser = new Parse_freq(44100, 19000, 552, container_size_fromAlert, my_shorts[0].shorts);
+            Parse_freq parser = new Parse_freq(44100, 19000, 276, container_size_fromAlert, my_shorts[0].shorts);
             long result_clearh = Long.parseLong(parser.analyse());
             parser.set_params(18500);
             long result_clearl = Long.parseLong(parser.analyse());
@@ -588,33 +562,33 @@ public class Task5 extends AppCompatActivity {
 
 //            if (result_clearh > result_high || result_clearl > )
 
-            String str = "";
-            str+=result_clearh;
-            str+=" ";
-            str+=result_clearl;
-            str+=" ";
-            str+=result_high;
-            str+=" ";
-            str+=result_low;
-            str+=" ";
-            str+=result_high2;
-            str+=" ";
-            str+=result_low2;
-            Log.d("BACKGROUNDRESULT", str);
-
-
-            //        // collect some data for analysis
-            FileOutputStream out = null;
-            BufferedWriter writer = null;
-            try {
-                out = my_shorts[0].context.openFileOutput("data9.txt", Context.MODE_APPEND);
-                writer = new BufferedWriter(new OutputStreamWriter(out));
-                writer.write(str);
-                writer.write("\n");
-                writer.close();
-            } catch (Exception e) {
-                Log.d("ASCIIASCII", "Wrong exporting");
-            }
+//            String str = "";
+//            str+=result_clearh;
+//            str+=" ";
+//            str+=result_clearl;
+//            str+=" ";
+//            str+=result_high;
+//            str+=" ";
+//            str+=result_low;
+//            str+=" ";
+//            str+=result_high2;
+//            str+=" ";
+//            str+=result_low2;
+//            Log.d("BACKGROUNDRESULT", str);
+//
+//
+//            //        // collect some data for analysis
+//            FileOutputStream out = null;
+//            BufferedWriter writer = null;
+//            try {
+//                out = my_shorts[0].context.openFileOutput("data9.txt", Context.MODE_APPEND);
+//                writer = new BufferedWriter(new OutputStreamWriter(out));
+//                writer.write(str);
+//                writer.write("\n");
+//                writer.close();
+//            } catch (Exception e) {
+//                Log.d("ASCIIASCII", "Wrong exporting");
+//            }
 
             return new Task5.my_longs_5(result_clearh, result_clearl, result_high, result_low, result_high2, result_low2);
         }

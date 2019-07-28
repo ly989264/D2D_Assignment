@@ -79,7 +79,7 @@ public class Certain_Time_Tone_Sender {
                     isClearHigh = true;
                 }
             }
-            Log.d("ASCII", "Clear");
+//            Log.d("ASCII", "Clear");
         } else {
 //            if (bit) {
 //                current_freq = frequency_high;
@@ -110,9 +110,9 @@ public class Certain_Time_Tone_Sender {
     }
 
     public void play_sound() {
-        Log.d("ASCII", message);
+//        Log.d("ASCII", message);
         isPlaying = true;
-        Log.d("CHECKINGSAMPLE", "Start playing");
+//        Log.d("CHECKINGSAMPLE", "Start playing");
         clear_count = 0;
         current_index = 0;
         boolean_index = 0;
@@ -142,11 +142,11 @@ public class Certain_Time_Tone_Sender {
                     isDataTransferring = false;
                     isClear = true;
                     clear_count = 0;
-                    Log.d("asciiascii", "Finish");
+//                    Log.d("asciiascii", "Finish");
                     break;
                 } else {
                     int curr = (int) message.charAt(current_index);
-                    Log.d("ascii", ""+curr);
+//                    Log.d("ascii", ""+curr);
                     current_index++;
                     String str = "";
                     for (int i = 0; i < 8; i++) {
@@ -159,7 +159,7 @@ public class Certain_Time_Tone_Sender {
                             str += "0";
                         }
                     }
-                    Log.d("ASCIIASCII", str);
+//                    Log.d("ASCIIASCII", str);
                     boolean_index = 0;
                     generate_tone(bits[boolean_index], bits[boolean_index+1], false);
 //                    audioTrack.flush();
@@ -190,7 +190,7 @@ public class Certain_Time_Tone_Sender {
             audioTrack.release();
             audioTrack = null;
         }
-        Log.d("ASCIIASCII", "Finish_v2");
+//        Log.d("ASCIIASCII", "Finish_v2");
 //        while (isClear) {
 //            if (audioTrack != null) {
 //                audioTrack.release();
@@ -220,7 +220,7 @@ public class Certain_Time_Tone_Sender {
 //                isClear = false;
 //            }
 //        }
-        Log.d("CHECKINGSAMPLE", "End playing");
+//        Log.d("CHECKINGSAMPLE", "End playing");
     }
 
     public void stop_play() {

@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
     private Button button_task3;
     private Button button_task4;
     private Button button_task5;
+    private Button button_t4;
+    private Button button_t5;
 
 
     @Override
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
         button_task3 = (Button) findViewById(R.id.button_task3);
         button_task4 = (Button) findViewById(R.id.button_task4);
         button_task5 = (Button) findViewById(R.id.button_task5);
+        button_t4 = (Button) findViewById(R.id.button_task4_BFSK);
+        button_t5 = (Button) findViewById(R.id.button_task5_BFSK);
         button_task1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +80,20 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, Task5.class);
+                startActivity(intent);
+            }
+        });
+        button_t4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, Task4_BFSK.class);
+                startActivity(intent);
+            }
+        });
+        button_t5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, Task5_BFSK.class);
                 startActivity(intent);
             }
         });

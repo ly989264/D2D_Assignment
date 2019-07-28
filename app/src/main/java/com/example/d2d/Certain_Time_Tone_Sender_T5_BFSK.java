@@ -8,7 +8,7 @@ import android.util.Log;
 
 import java.util.concurrent.TimeUnit;
 
-public class Certain_Time_Tone_Sender_T5 {
+public class Certain_Time_Tone_Sender_T5_BFSK {
 
     private double duration;
     private int sleep_time;
@@ -16,15 +16,15 @@ public class Certain_Time_Tone_Sender_T5 {
     private String message;
     private double[] sample;
     private double[] sample2;
+    private double[] sample3;
 
     private boolean ttused = false;
     private short[] shorts;
     private short[] shorts2;
+    private short[] shorts3;
 
     private double frequency_high = 18000;
     private double frequency_low = 17500;
-    private double frequency_high2 = 17000;
-    private double frequency_low2 = 16500;
     private double frequency_clearh = 19000;
     private double frequency_clearl = 18500;
     private int clear_num = 4;
@@ -48,15 +48,17 @@ public class Certain_Time_Tone_Sender_T5 {
     private boolean isDataTransferring = false;
     private boolean isFirstRound = false;
 
-    public Certain_Time_Tone_Sender_T5(double duration, final String message, Context context) {
+    public Certain_Time_Tone_Sender_T5_BFSK(double duration, final String message, Context context) {
         this.duration = duration * 2 / 3;
         this.sleep_time = (int) (duration * 1000);
         this.each_length = (int) (this.duration * sample_rate);
         this.message = message;
         this.sample = new double[each_length];
         this.sample2 = new double[each_length];
+        this.sample3 = new double[each_length];
         this.shorts = new short[each_length];
         this.shorts2 = new short[each_length];
+        this.shorts3 = new short[each_length];
         this.length = message.length();
         audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
     }
@@ -78,7 +80,7 @@ public class Certain_Time_Tone_Sender_T5 {
         return hash + 128;
     }
 
-    private void generate_tone(boolean bit1, boolean bit2, boolean isStart) {
+    private void generate_tone(boolean bit, boolean isStart) {
         // generate the sin values in range [-1, 1]
         if (isStart) {
             ttused = false;
@@ -96,63 +98,29 @@ public class Certain_Time_Tone_Sender_T5 {
 //            Log.d("ASCII", "Clear");
         } else {
             ttused = true;
-//            if (bit) {
-//                current_freq = frequency_high;
+            if (bit) {
+                current_freq = frequency_high;
 //                Log.d("ASCII", "1");
-//            } else {
-//                current_freq = frequency_low;
-//                Log.d("ASCII", "0");
-//            }
-            if (bit1 && bit2) {
-                // 0110
-                for (int i = 0; i < sample.length; i++) {
-                    sample[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low2));
-                    sample2[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_high2));
-                }
-//                Log.d("holaholasend", "5");
-//                Log.d("holaholasend", "4");
-            } else if (bit1 && (! bit2)) {
-                // 0101
-                for (int i = 0; i < sample.length; i++) {
-                    sample[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low2));
-                    sample2[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low2));
-                }
-//                Log.d("holaholasend", "5");
-//                Log.d("holaholasend", "5");
-            } else if ((! bit1) && bit2) {
-                // 0011
-                for (int i = 0; i < sample.length; i++) {
-                    sample[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low));
-                    sample2[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_high));
-                }
-//                Log.d("holaholasend", "3");
-//                Log.d("holaholasend", "2");
             } else {
-                // 0000
-                for (int i = 0; i < sample.length; i++) {
-                    sample[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low));
-                    sample2[i] = Math.sin(2 * Math.PI * i / (sample_rate/frequency_low));
-                }
-//                Log.d("holaholasend", "3");
-//                Log.d("holaholasend", "3");
+                current_freq = frequency_low;
+//                Log.d("ASCII", "0");
             }
-
+            for (int i = 0; i < sample.length; i++) {
+                sample[i] = Math.sin(2 * Math.PI * i / (sample_rate/current_freq));
+                sample2[i] = Math.sin(2 * Math.PI * i / (sample_rate/current_freq));
+                sample3[i] = Math.sin(2 * Math.PI * i / (sample_rate/current_freq));
+            }
         }
         int idx = 0;
         for (double dVal : sample) {
             // because 16 bit in range of -32767 to +32767, need to multiple 32767
             short val = (short) (dVal * 32767);
             shorts[idx] = val;
-            idx++;
-        }
-        if (ttused) {
-            idx = 0;
-            for (double dVal : sample2) {
-                short val = (short) (dVal * 32767);
+            if (ttused) {
                 shorts2[idx] = val;
-                idx++;
+                shorts3[idx] = val;
             }
-
+            idx++;
         }
     }
 
@@ -164,7 +132,7 @@ public class Certain_Time_Tone_Sender_T5 {
         current_index = 0;
         boolean_index = 0;
         while (isClear) {
-            generate_tone(true, true,true);
+            generate_tone(true,true);
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
             audioTrack.write(shorts, 0, shorts.length);
             audioTrack.play();
@@ -193,7 +161,7 @@ public class Certain_Time_Tone_Sender_T5 {
                     break;
                 } else {
                     int curr = (int) message.charAt(current_index);
-                    Log.d("ascii", ""+curr);
+//                    Log.d("ascii", ""+curr);
                     current_index++;
                     String str = "";
                     for (int i = 0; i < 8; i++) {
@@ -208,7 +176,7 @@ public class Certain_Time_Tone_Sender_T5 {
                     }
 //                    Log.d("ASCIIASCII", str);
                     boolean_index = 0;
-                    generate_tone(bits[boolean_index], bits[boolean_index+1], false);
+                    generate_tone(bits[boolean_index], false);
 //                    audioTrack.flush();
                     audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
                     audioTrack.write(shorts, 0, shorts.length);
@@ -221,14 +189,23 @@ public class Certain_Time_Tone_Sender_T5 {
                     audioTrack.stop();
                     audioTrack.release();
                     audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
-                    audioTrack.write(shorts2, 0, shorts2.length);
+                    audioTrack.write(shorts, 0, shorts.length);
                     audioTrack.play();
-                    boolean_index++;
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(sleep_time);
+                    } catch (Exception e) {
+                        Log.d("CANNOTSLEEP", "CANNOT SLEEP");
+                    }
+                    audioTrack.stop();
+                    audioTrack.release();
+                    audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
+                    audioTrack.write(shorts, 0, shorts.length);
+                    audioTrack.play();
                     boolean_index++;
                     isFirstRound = false;
                 }
             } else {
-                generate_tone(bits[boolean_index], bits[boolean_index+1], false);
+                generate_tone(bits[boolean_index], false);
                 audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
                 audioTrack.write(shorts, 0, shorts.length);
                 audioTrack.play();
@@ -240,11 +217,20 @@ public class Certain_Time_Tone_Sender_T5 {
                 audioTrack.stop();
                 audioTrack.release();
                 audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
-                audioTrack.write(shorts2, 0, shorts2.length);
+                audioTrack.write(shorts, 0, shorts.length);
+                audioTrack.play();
+                try {
+                    TimeUnit.MILLISECONDS.sleep(sleep_time);
+                } catch (Exception e) {
+                    Log.d("CANNOTSLEEP", "CANNOT SLEEP");
+                }
+                audioTrack.stop();
+                audioTrack.release();
+                audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
+                audioTrack.write(shorts, 0, shorts.length);
                 audioTrack.play();
 //                Log.d("SPECIALDELIVERY", shorts[0]+"");
 //                audioTrack.play();
-                boolean_index++;
                 boolean_index++;
             }
             try {
@@ -271,8 +257,8 @@ public class Certain_Time_Tone_Sender_T5 {
                 hash_bits[i] = false;
             }
         }
-        for (int i = 0; i < 8; i = i+2) {
-            generate_tone(hash_bits[i], hash_bits[i+1], false);
+        for (int i = 0; i < 8; i++) {
+            generate_tone(hash_bits[i], false);
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
             audioTrack.write(shorts, 0, shorts.length);
             audioTrack.play();
@@ -284,7 +270,17 @@ public class Certain_Time_Tone_Sender_T5 {
             audioTrack.stop();
             audioTrack.release();
             audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
-            audioTrack.write(shorts2, 0, shorts2.length);
+            audioTrack.write(shorts, 0, shorts.length);
+            audioTrack.play();
+            try {
+                TimeUnit.MILLISECONDS.sleep(sleep_time);
+            } catch (Exception e) {
+                Log.d("CANNOTSLEEP", "CANNOT SLEEP");
+            }
+            audioTrack.stop();
+            audioTrack.release();
+            audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, sample_rate, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, each_length*2, AudioTrack.MODE_STATIC);
+            audioTrack.write(shorts, 0, shorts.length);
             audioTrack.play();
             try {
                 TimeUnit.MILLISECONDS.sleep(sleep_time);

@@ -131,9 +131,9 @@
         android:layout_marginTop="20dp">
 
         <TextView
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="2.5"/>
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="2.5"/>
 
         <Button
             android:id="@+id/button_task5"
@@ -141,6 +141,39 @@
             android:layout_height="match_parent"
             android:layout_weight="4"
             android:text="Task 5"
+            android:textSize="20dp"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.5"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.5"/>
+
+        <Button
+            android:id="@+id/button_task4_BFSK"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="T4*"
+            android:textSize="20dp"/>
+
+        <Button
+            android:id="@+id/button_task5_BFSK"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:text="T5*"
             android:textSize="20dp"/>
 
         <TextView

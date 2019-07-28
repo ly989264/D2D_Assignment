@@ -22,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class Task4 extends AppCompatActivity {
+public class Task4_BFSK extends AppCompatActivity {
 
     private TextView textView_params;
     private EditText editText_input_message;
@@ -109,7 +109,7 @@ public class Task4 extends AppCompatActivity {
 
     private void send_message() {
         if (editText_input_message.getText().length() == 0) {
-            Toast.makeText(Task4.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
+            Toast.makeText(Task4_BFSK.this, "The message cannot be empty!", Toast.LENGTH_LONG).show();
             return;
         }
         String message = editText_input_message.getText().toString();
@@ -147,7 +147,7 @@ public class Task4 extends AppCompatActivity {
         Thread send_thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Certain_Time_Tone_Sender sender = new Certain_Time_Tone_Sender(duration_fromAlert, message_copy, Task4.this);
+                Certain_Time_Tone_Sender_BFSK sender = new Certain_Time_Tone_Sender_BFSK(duration_fromAlert, message_copy, Task4_BFSK.this);
                 sender.play_sound();
             }
         });
@@ -155,7 +155,7 @@ public class Task4 extends AppCompatActivity {
         Thread setting_timer = new Thread(new Runnable() {
             @Override
             public void run() {
-                int time_to_sleep = message_copy.length() * 4 * sleep_time_fromAlert + 4 * sleep_time_fromAlert;
+                int time_to_sleep = message_copy.length() * 8 * sleep_time_fromAlert + 20 * sleep_time_fromAlert;
                 try {
                     TimeUnit.MILLISECONDS.sleep(time_to_sleep);
                 } catch (Exception e) {
@@ -189,36 +189,27 @@ public class Task4 extends AppCompatActivity {
         long clearl;
         long high;
         long low;
-        long high2;
-        long low2;
 
-        my_longs(long a, long b, long c, long d, long e, long f) {
+        my_longs(long a, long b, long c, long d) {
             this.clearh = a;
             this.clearl = b;
             this.high = c;
             this.low = d;
-            this.high2 = e;
-            this.low2 = f;
         }
 
         public int generator() {
-            if (clearh > clearl && clearh > high && clearh > low && clearh > high2 && clearh > low2) {
-                return 0;  // clearh
-            } else if (clearl > clearh && clearl > high && clearl > low && clearl > high2 && clearl > low2) {
-                return 1;  // clearl
-            } else if (high > clearh && high > clearl && high > low && high > high2 && high > low2) {
-                return 2;  // high
-            } else if (low > clearh && low > clearl && low > high && low > high2 && low > low2) {
-                return 3;  // low
-            } else if (high2 > clearh && high2 > clearl && high2 > high && high2 > low && high2 > low2) {
-                return 4;  // high2
-            } else {
-                return 5;  // low2
+            if (clearh > clearl && clearh > high && clearh > low) {
+                return 0;
+            } else if (clearl > clearh && clearl > high && clearl > low) {
+                return 1;
+            } else if (high > clearh && high > clearl && high > low) {
+                return 2;
             }
+            return 3;
         }
 
         public boolean check_noise() {
-            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold || high2 > threshold || low2 > threshold) {
+            if (clearh > threshold || clearl > threshold || high > threshold || low > threshold) {
                 return true;
             }
             return false;
@@ -251,7 +242,7 @@ public class Task4 extends AppCompatActivity {
         });
         while (isRecording) {
             recorder.read(sData, 0, container_size_fromAlert);
-            my_shorts current_shorts = new my_shorts(container_size_fromAlert, sData, Task4.this);
+            my_shorts current_shorts = new my_shorts(container_size_fromAlert, sData, Task4_BFSK.this);
             new asyncOperate().execute(current_shorts);
 
         }
@@ -299,20 +290,16 @@ public class Task4 extends AppCompatActivity {
         for (my_longs each : intermediate_data) {
 
             //************************Writing test
-//            String str = "";
-//            str+=each.clearh;
-//            str+=" ";
-//            str+=each.clearl;
-//            str+=" ";
-//            str+=each.high;
-//            str+=" ";
-//            str+=each.low;
-//            str+=" ";
-//            str+=each.high2;
-//            str+=" ";
-//            str+=each.low2;
-//
-//            //        // collect some data for analysis
+            String str = "";
+            str+=each.clearh;
+            str+=" ";
+            str+=each.clearl;
+            str+=" ";
+            str+=each.high;
+            str+=" ";
+            str+=each.low;
+
+            //        // collect some data for analysis
 //            FileOutputStream out = null;
 //            BufferedWriter writer = null;
 //            try {
@@ -415,27 +402,11 @@ public class Task4 extends AppCompatActivity {
         int temp = 0;
         for (int each : second_res) {
             switch (each) {
-                case 3:// low 00
-                    bytes.add(0);
-                    cnt++;
-                    bytes.add(0);
-                    cnt++;
-                    break;
-                case 2://high 11
-                    bytes.add(1);
-                    cnt++;
-                    bytes.add(1);
-                    cnt++;
-                    break;
-                case 4://high2 10
-                    bytes.add(1);
-                    cnt++;
+                case 3:
                     bytes.add(0);
                     cnt++;
                     break;
-                case 5://low2  01
-                    bytes.add(0);
-                    cnt++;
+                case 2:
                     bytes.add(1);
                     cnt++;
                     break;
@@ -473,10 +444,6 @@ public class Task4 extends AppCompatActivity {
             long result_high = Long.parseLong(parser.analyse());
             parser.set_params(17500);
             long result_low = Long.parseLong(parser.analyse());
-            parser.set_params(17000);
-            long result_high2 = Long.parseLong(parser.analyse());
-            parser.set_params(16500);
-            long result_low2 = Long.parseLong(parser.analyse());
 
 //            if (result_clearh > result_high || result_clearl > )
 
@@ -488,27 +455,23 @@ public class Task4 extends AppCompatActivity {
 //            str+=result_high;
 //            str+=" ";
 //            str+=result_low;
-//            str+=" ";
-//            str+=result_high2;
-//            str+=" ";
-//            str+=result_low2;
 //            Log.d("BACKGROUNDRESULT", str);
 //
 //
-//            //        // collect some data for analysis
-//        FileOutputStream out = null;
-//        BufferedWriter writer = null;
-//        try {
-//            out = my_shorts[0].context.openFileOutput("data7.txt", Context.MODE_APPEND);
-//            writer = new BufferedWriter(new OutputStreamWriter(out));
-//            writer.write(str);
-//            writer.write("\n");
-//            writer.close();
-//        } catch (Exception e) {
-//            Log.d("ASCIIASCII", "Wrong exporting");
-//        }
+//                    // collect some data for analysis
+//            FileOutputStream out = null;
+//            BufferedWriter writer = null;
+//            try {
+//                out = my_shorts[0].context.openFileOutput("data7.txt", Context.MODE_APPEND);
+//                writer = new BufferedWriter(new OutputStreamWriter(out));
+//                writer.write(str);
+//                writer.write("\n");
+//                writer.close();
+//            } catch (Exception e) {
+//                Log.d("ASCIIASCII", "Wrong exporting");
+//            }
 
-            return new my_longs(result_clearh, result_clearl, result_high, result_low, result_high2, result_low2);
+            return new my_longs(result_clearh, result_clearl, result_high, result_low);
         }
 
         @Override
